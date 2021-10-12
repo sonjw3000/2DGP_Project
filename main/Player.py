@@ -109,7 +109,7 @@ class Player:
 		# img start pos (0,1)
 		# x offset : 17
 		# y offset : 33
-		# character size : 16 x 32, if size == 0, 16 x 16
+		# character size : 16 x 32, if size == 0: 16 x 16
 
 		# Sprite 0 : Idle
 		# Sprite 1 : Jump
