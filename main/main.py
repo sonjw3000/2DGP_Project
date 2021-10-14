@@ -1,68 +1,71 @@
 from pico2d import *
-#from pynput import keyboard
-import keyboard
+# from pynput import keyboard
+# import keyboard
 import Player
+
+
 # All rectangle have left, bottom position as their offset
 
+class GameRunner:
+	def __init__(self):
+		# init game here
+		self.bGameLoop = True
+
+		# Game Objects
+		self.mario = Player.Player()
+
+	# Constructor end
+
+	def __handle_events(self):
+		game_events = get_events()
+		for event in game_events:
+			if event.type == SDL_QUIT:
+				self.bGameLoop = False
+			elif event.type == SDL_KEYDOWN:
+				if event.key == SDLK_ESCAPE:
+					self.bGameLoop = False
+
+	# Event handler End
+
+	def input(self):
+		self.__handle_events()
+		self.mario.input()
+
+	# Input End
+
+	def update(self):
+		self.mario.move()
+		# collide check here
+		# fill
+		pass
+
+	# Update End
+
+	def draw(self):
+		clear_canvas()
+
+		self.mario.draw()
+		update_canvas()
+# Draw End
 
 
-def handleEvents():
-	global bGameLoop
-
-	events = get_events()
-	for event in events:
-		if event.type == SDL_QUIT: 			bGameLoop = False
-		elif event.type == SDL_KEYDOWN:
-			## Player Move
-			#if event.key == SDLK_RIGHT:		mario.addDir(1)
-			#elif event.key == SDLK_LEFT:	mario.addDir(-1)
-			# Quit
-			#el
-			if event.key == SDLK_ESCAPE:	bGameLoop = False
-			# test
-			elif event.key == SDLK_F1:		mario.spriteUp()
-			elif event.key == SDLK_F2:		mario.spriteDown()
-			elif event.key == SDLK_F3:		mario.sizeUp()
-			elif event.key == SDLK_F4:		mario.sizeDown()
-		#elif event.type == SDL_KEYUP:
-		#	# Player Move
-		#	if event.key == SDLK_RIGHT:		mario.addDir(-1)
-		#	elif event.key == SDLK_LEFT:	mario.addDir(1)
+# Class End
 
 
+def main():
+	# Init game Settings
+	open_canvas()
+	game = GameRunner()
 
-def input():
-	handleEvents()
-	mario.input()
+	# Game Loop
+	while game.bGameLoop:
+		game.input()
+		game.update()
+		game.draw()
+		delay(0.01)
 
-def update():
-	global mario
-	mario.move()
-
-def draw():
-	clear_canvas()
-
-	mario.draw()
-	update_canvas()
-
-
-# Init game Settings
-open_canvas()
-
-mario = Player.Player()
-bGameLoop = True
+	close_canvas()
 
 
-# Game Loop
-while(bGameLoop):
-
-	input()
-	update()
-	draw()
-
-
-	delay(0.01)
-
-
-
-close_canvas()
+if __name__ == "__main__":
+	main()
