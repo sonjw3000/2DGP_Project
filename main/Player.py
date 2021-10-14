@@ -1,8 +1,11 @@
 from pico2d import *
 from keyboard import is_pressed
-
+import Tile
 
 # import keyboard
+
+PLAYER_SPEED = 0.1
+PLAYER_MAX_SPEED = 1.5
 
 
 class Player:
@@ -22,12 +25,14 @@ class Player:
 
 		# Mario Move Direction -1 : left, 0 : Idle, 1 : Right
 		self.__imgSprite = 0
+		self.__frame = 0
 		self.__bLookRight = True
 
 		self.__speed = 0
 
 		self.__bBreak = False
 		self.__bSitDown = False
+		self.__bRunning = False
 
 	# Constructor End
 
@@ -37,18 +42,21 @@ class Player:
 
 	def input(self):
 		bKeyPressed = False
+		self.__bRunning = False
 		if is_pressed('left'):
 			bKeyPressed = True
+			self.__bRunning = True
+
 			# Speed Setting
-			if self.__speed > -1:
-				self.__speed -= 0.05
+			if self.__speed > -PLAYER_MAX_SPEED:
+				self.__speed -= PLAYER_SPEED
 			else:
-				self.__speed = -1
+				self.__speed = -PLAYER_MAX_SPEED
 
 			# Image Sprite Setting
 			if self.__speed > 0:
 				# Breaking
-				self.__speed -= 0.03
+				self.__speed -= PLAYER_SPEED / 2
 				self.__bLookRight = False
 				self.__imgSprite = 7
 
@@ -59,23 +67,25 @@ class Player:
 				self.__imgSprite = 0
 
 				if self.__bBreak:
-					if self.__speed > -0.3:
+					if self.__speed > -PLAYER_SPEED / 2:
 						self.__imgSprite = 7
 					else:
 						self.__bBreak = False
 
 		if is_pressed('right'):
 			bKeyPressed = True
+			self.__bRunning = True
+
 			# Speed Setting
-			if self.__speed < 1:
-				self.__speed += 0.05
+			if self.__speed < PLAYER_MAX_SPEED:
+				self.__speed += PLAYER_SPEED
 			else:
-				self.__speed = 1
+				self.__speed = PLAYER_MAX_SPEED
 
 			# Image Sprite Setting
 			if self.__speed < 0:
 				# Breaking
-				self.__speed += 0.03
+				self.__speed += PLAYER_SPEED / 2
 				self.__bLookRight = True
 				self.__imgSprite = 7
 			else:
@@ -84,7 +94,7 @@ class Player:
 				self.__imgSprite = 0
 
 				if self.__bBreak:
-					if self.__speed < 0.3:
+					if self.__speed < PLAYER_SPEED / 2:
 						self.__imgSprite = 7
 					else:
 						self.__bBreak = False
@@ -111,7 +121,7 @@ class Player:
 			if self.__speed > 0:
 				self.__speed = 0
 
-		if not bKeyPressed: 		# and not jumping
+		if not bKeyPressed:  # and not jumping
 			self.__imgSprite = 0
 			self.__bBreak = False
 
@@ -136,13 +146,22 @@ class Player:
 		if self.__speed == 0 and not self.__bBreak:
 			self.__imgSprite = 0
 
-		if self.__bSitDown:		# and not jumping
+		if self.__bSitDown:  # and not jumping
 			self.__imgSprite = 8
+		elif self.__bRunning:  # and not jumping
+			self.__frame = (self.__frame + 1) % 40
+
+		if not self.__bRunning:
+			self.__frame = 0
+
+		if self.__bBreak or self.__bSitDown:
+			self.__frame = 0
+			self.__bRunning = False
 
 		self.__characterImageSprite.clip_draw(
-			self.__imgSprite * 17 + 153 * self.__bLookRight,
+			(self.__imgSprite + (self.__bRunning * 2 + self.__frame // 10)) * 17 + 153 * self.__bLookRight,
 			(2 - self.__size) * 33,
-			16, 32, self.__x, self.__y)
+			16, 32, self.__x, self.__y, Tile.TILE_SIZE, Tile.TILE_SIZE + Tile.TILE_SIZE)
 
 	# Draw End
 
@@ -171,7 +190,7 @@ if __name__ == "__main__":
 	open_canvas()
 
 	bGameLoop = True
-	mario = Player()
+	mario = Player(20, 40)
 
 	# Game Loop
 	while bGameLoop:
