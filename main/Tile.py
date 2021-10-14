@@ -1,7 +1,9 @@
 from pico2d import *
+import Player
 
 # Tile is square
 TILE_SIZE = 40
+
 
 # Floor : 0
 # Breakable Block : 33
@@ -14,8 +16,8 @@ class Tile:
 
 	# right bottom == (0, 0)
 	def __init__(self, x, y, collide, breakable, tile_number):
-		self.__x = x
-		self.__y = y
+		self.__x = x + TILE_SIZE // 2
+		self.__y = y + TILE_SIZE // 2
 
 		self.__bCollideOn = collide
 		self.__bBreakable = breakable
@@ -50,11 +52,9 @@ class Tile:
 	# type 0 : over world, 1 : underground
 	def draw(self, world_type):
 		if world_type == 0:
-			x = 1 + (self.__type % 16) * 17 + (self.__frame // 10) * 17
-			y = 1 + (self.__type // 16) * 17
 			self.__imageSpriteOverWorld.clip_draw(
-				x,
-				y,
+				1 + (self.__type % 16) * 17 + (self.__frame // 10) * 17,
+				1 + (self.__type // 16) * 17,
 				16, 16, self.__x, self.__y, TILE_SIZE, TILE_SIZE)
 
 	@classmethod
@@ -73,23 +73,28 @@ if __name__ == "__main__":
 	Tile.set_image(tileImage)
 
 	gLoop = True
+	mario = Player.Player(80, 80, 2)
 
 	myTiles = [
-		Tile(TILE_SIZE * 1, TILE_SIZE * 1, True, False, 0),
-		Tile(TILE_SIZE * 2, TILE_SIZE * 1, True, False, 0),
-		Tile(TILE_SIZE * 3, TILE_SIZE * 1, True, False, 0),
-		Tile(TILE_SIZE * 4, TILE_SIZE * 1, True, False, 0),
+		Tile(TILE_SIZE * 0, TILE_SIZE * 0, True, False, 0),
+		Tile(TILE_SIZE * 1, TILE_SIZE * 0, True, False, 0),
+		Tile(TILE_SIZE * 2, TILE_SIZE * 0, True, False, 0),
+		Tile(TILE_SIZE * 3, TILE_SIZE * 0, True, False, 0),
 
-		Tile(TILE_SIZE * 1, TILE_SIZE * 3, True, True, 33),
-		Tile(TILE_SIZE * 2, TILE_SIZE * 3, True, True, 33),
-		Tile(TILE_SIZE * 3, TILE_SIZE * 3, True, True, 33),
-		Tile(TILE_SIZE * 4, TILE_SIZE * 3, True, True, 33),
+		Tile(TILE_SIZE * 0, TILE_SIZE * 4, True, True, 33),
+		Tile(TILE_SIZE * 1, TILE_SIZE * 4, True, True, 33),
+		Tile(TILE_SIZE * 2, TILE_SIZE * 4, True, True, 33),
+		Tile(TILE_SIZE * 3, TILE_SIZE * 4, True, True, 33),
 
-		Tile(TILE_SIZE * 1, TILE_SIZE * 5, True, False, 64),
-		Tile(TILE_SIZE * 2, TILE_SIZE * 5, True, False, 64),
-		Tile(TILE_SIZE * 3, TILE_SIZE * 5, True, False, 64),
-		Tile(TILE_SIZE * 4, TILE_SIZE * 5, True, False, 64)
+		Tile(TILE_SIZE * 0, TILE_SIZE * 6, True, False, 64),
+		Tile(TILE_SIZE * 1, TILE_SIZE * 6, True, False, 64),
+		Tile(TILE_SIZE * 2, TILE_SIZE * 6, True, False, 64),
+		Tile(TILE_SIZE * 3, TILE_SIZE * 6, True, False, 64),
 
+		Tile(TILE_SIZE * 0, TILE_SIZE * 8, True, True, 33),
+		Tile(TILE_SIZE * 1, TILE_SIZE * 8, True, True, 33),
+		Tile(TILE_SIZE * 2, TILE_SIZE * 8, True, True, 33),
+		Tile(TILE_SIZE * 3, TILE_SIZE * 8, True, True, 33),
 	]
 
 	# Game Loop
@@ -98,11 +103,14 @@ if __name__ == "__main__":
 		for event in events:
 			if event.type == SDL_QUIT:
 				gLoop = False
+		mario.input()
 
 		for tile in myTiles:
 			tile.update()
+		mario.move()
 
 		clear_canvas()
+		mario.draw()
 		for tile in myTiles:
 			tile.draw(0)
 		update_canvas()
