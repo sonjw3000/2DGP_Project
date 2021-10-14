@@ -6,7 +6,7 @@ from keyboard import is_pressed
 
 
 class Player:
-	def __init__(self, x=10, y=100, size=2):
+	def __init__(self, x=8, y=16, size=2):
 		# Init Image Sprite
 		self.__characterImageSprite = load_image('./resource/Mario_Real.png')
 
@@ -33,7 +33,7 @@ class Player:
 
 	# Returns Left, Bottom, Right, Top
 	def get_position(self):
-		return self.__x, self.__y, self.__x + 16, self.__y + 16 + (self.__size != 0) * (self.__bSitDown != 0) * 16
+		return self.__x - 8, self.__y - 16, self.__x + 8, self.__y + (self.__size != 0) * (self.__bSitDown != 0) * 16
 
 	def input(self):
 		bKeyPressed = False
@@ -96,6 +96,7 @@ class Player:
 			self.__bSitDown = False
 
 		if is_pressed('up'):
+			# jump gogo
 			bKeyPressed = True
 			print("up")
 
