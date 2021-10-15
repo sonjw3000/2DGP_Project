@@ -1,11 +1,16 @@
 from pico2d import *
 from keyboard import is_pressed
+# from Tile import TILE_SIZE
 import Tile
 
 # import keyboard
 
-PLAYER_SPEED = 0.1
-PLAYER_MAX_SPEED = 1.5
+PLAYER_SPEED_X = 0.3
+PLAYER_MAX_SPEED_X = 2.5
+
+PLAYER_SPEED_Y = 0.2
+PLAYER_MAX_SPEED_Y = 7
+PLAYER_MAX_JUMP_HEIGHT = 100
 
 
 class Player:
@@ -15,6 +20,12 @@ class Player:
 
 		# Mario Moving bool variables
 		self.__bRunning = False
+		self.__bBreak = False
+		self.__bSitDown = False
+		self.__bRunning = False
+		self.__bAttack = False
+		self.__bJump = False
+		self.__bFalling = False
 
 		# Set Pos
 		self.__x = x
@@ -28,48 +39,43 @@ class Player:
 		self.__frame = 0
 		self.__bLookRight = True
 
-		self.__speed = 0
+		self.__speed_x = 0
+		self.__speed_y = 0
 
-		self.__bBreak = False
-		self.__bSitDown = False
-		self.__bRunning = False
+		self.__yMove = 0
 
 	# Constructor End
 
-	# Returns Left, Bottom, Right, Top
+	# Returns rectangle tuple (Left, Bottom, Right, Top)
 	def get_position(self):
 		return self.__x - 8, self.__y - 16, self.__x + 8, self.__y + (self.__size != 0) * (self.__bSitDown != 0) * 16
 
 	def input(self):
 		bKeyPressed = False
 		self.__bRunning = False
+
+		# Move Start
 		if is_pressed('left'):
 			bKeyPressed = True
 			self.__bRunning = True
 
 			# Speed Setting
-			if self.__speed > -PLAYER_MAX_SPEED:
-				self.__speed -= PLAYER_SPEED
+			if self.__speed_x > -PLAYER_MAX_SPEED_X + (self.__bSitDown * PLAYER_MAX_SPEED_X / 2):
+				self.__speed_x -= PLAYER_SPEED_X
 			else:
-				self.__speed = -PLAYER_MAX_SPEED
+				self.__speed_x = -PLAYER_MAX_SPEED_X + (self.__bSitDown * PLAYER_MAX_SPEED_X / 2)
 
-			# Image Sprite Setting
-			if self.__speed > 0:
+			# Flag Setting
+			if self.__speed_x > 0:
 				# Breaking
-				self.__speed -= PLAYER_SPEED / 2
+				self.__speed_x -= PLAYER_SPEED_X / 2
 				self.__bLookRight = False
-				self.__imgSprite = 7
-
 				self.__bBreak = True
 			else:
 				# Running
 				self.__bLookRight = False
-				self.__imgSprite = 0
-
 				if self.__bBreak:
-					if self.__speed > -PLAYER_SPEED / 2:
-						self.__imgSprite = 7
-					else:
+					if self.__speed_x <= -PLAYER_SPEED_X / 2:
 						self.__bBreak = False
 
 		if is_pressed('right'):
@@ -77,26 +83,22 @@ class Player:
 			self.__bRunning = True
 
 			# Speed Setting
-			if self.__speed < PLAYER_MAX_SPEED:
-				self.__speed += PLAYER_SPEED
+			if self.__speed_x < PLAYER_MAX_SPEED_X - (self.__bSitDown * PLAYER_MAX_SPEED_X / 2):
+				self.__speed_x += PLAYER_SPEED_X
 			else:
-				self.__speed = PLAYER_MAX_SPEED
+				self.__speed_x = PLAYER_MAX_SPEED_X - (self.__bSitDown * PLAYER_MAX_SPEED_X / 2)
 
-			# Image Sprite Setting
-			if self.__speed < 0:
+			# Flag Setting
+			if self.__speed_x < 0:
 				# Breaking
-				self.__speed += PLAYER_SPEED / 2
+				self.__speed_x += PLAYER_SPEED_X / 2
 				self.__bLookRight = True
-				self.__imgSprite = 7
+				self.__bBreak = True
 			else:
 				# Running
 				self.__bLookRight = True
-				self.__imgSprite = 0
-
 				if self.__bBreak:
-					if self.__speed < PLAYER_SPEED / 2:
-						self.__imgSprite = 7
-					else:
+					if self.__speed_x >= PLAYER_SPEED_X / 2:
 						self.__bBreak = False
 
 		if is_pressed('down'):
@@ -108,30 +110,54 @@ class Player:
 		if is_pressed('up'):
 			# jump gogo
 			bKeyPressed = True
-			print("up")
+			if not self.__bFalling:
+				self.__speed_y = PLAYER_MAX_SPEED_Y
+				self.__bJump = True
+				self.__yMove += self.__speed_y
+			if self.__yMove >= PLAYER_MAX_JUMP_HEIGHT:
+				self.__bFalling = True
+		else:
+			self.__bFalling = True
+		if self.__bFalling:
+			self.__speed_y -= PLAYER_SPEED_Y
 
 		# Slow Down
-		if self.__speed > 0:
-			self.__speed -= 0.02
-			if self.__speed < 0:
-				self.__speed = 0
+		if self.__speed_x > 0:
+			self.__speed_x -= PLAYER_SPEED_X / 3
+			if self.__speed_x < 0:
+				self.__speed_x = 0
 
-		elif self.__speed < 0:
-			self.__speed += 0.02
-			if self.__speed > 0:
-				self.__speed = 0
+		elif self.__speed_x < 0:
+			self.__speed_x += PLAYER_SPEED_X / 3
+			if self.__speed_x > 0:
+				self.__speed_x = 0
 
-		if not bKeyPressed:  # and not jumping
-			self.__imgSprite = 0
+		if not bKeyPressed:
 			self.__bBreak = False
+		# Move End
+
+		if self.__size == 2 and is_pressed('ctrl'):
+			# Make bullet here
+			self.__bAttack = True
+		else:
+			self.__bAttack = False
 
 	# Input End
 
-	def move(self):
-		self.__x += self.__speed
+	def move(self, land=False):
+		self.__x += self.__speed_x
+		self.__y += self.__speed_y
+
+		# It's falling and land
+		if self.__speed_y < 0 and (land or self.__y <= Tile.TILE_SIZE - ((self.__size == 0) * Tile.TILE_SIZE / 2)):
+			self.__y = Tile.TILE_SIZE - ((self.__size == 0) * Tile.TILE_SIZE / 2)
+			self.__speed_y = 0
+			self.__bJump = False
+			self.__bFalling = False
+			self.__yMove = 0
 
 	def draw(self):
-		# print(self.__speed)
+		# print(self.__speed_x)
 		# img start pos (0,1)
 		# x offset : 17
 		# y offset : 33
@@ -143,25 +169,38 @@ class Player:
 		# Sprite 6 : Attack(Size : 2), Empty(Size : 1), Dead(Size : 0)
 		# Sprite 7 : Breaking
 		# Sprite 8 : Sit Down
-		if self.__speed == 0 and not self.__bBreak:
-			self.__imgSprite = 0
 
-		if self.__bSitDown:  # and not jumping
+		# Set Img Sprite
+		# if self.__speed_x == 0 and not self.__bBreak:
+		# 	self.__imgSprite = 0
+
+		bFrame = False
+
+		# Image priority
+		# (attack) > jump > sit > break > running > idle
+		self.__imgSprite = 0
+		if self.__bAttack:
+			self.__imgSprite = 6
+		elif self.__bJump or self.__bFalling:
+			self.__imgSprite = 1
+		elif self.__bSitDown:
 			self.__imgSprite = 8
-		elif self.__bRunning:  # and not jumping
+		elif self.__bBreak:
+			self.__imgSprite = 7
+		elif self.__bRunning:
+			self.__imgSprite = 2
+			bFrame = True
+
+		# Set Frame
+		if bFrame:
 			self.__frame = (self.__frame + 1) % 40
-
-		if not self.__bRunning:
+		else:
 			self.__frame = 0
-
-		if self.__bBreak or self.__bSitDown:
-			self.__frame = 0
-			self.__bRunning = False
 
 		self.__characterImageSprite.clip_draw(
-			(self.__imgSprite + (self.__bRunning * 2 + self.__frame // 10)) * 17 + 153 * self.__bLookRight,
+			(self.__imgSprite + (bFrame * self.__frame // 10)) * 17 + 153 * self.__bLookRight,
 			(2 - self.__size) * 33,
-			16, 32, self.__x, self.__y, Tile.TILE_SIZE, Tile.TILE_SIZE + Tile.TILE_SIZE)
+			16, 32, self.__x, self.__y, Tile.TILE_SIZE, Tile.TILE_SIZE + (Tile.TILE_SIZE * (not self.__size == 0)))
 
 	# Draw End
 
