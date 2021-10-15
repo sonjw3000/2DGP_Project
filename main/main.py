@@ -2,6 +2,7 @@ from pico2d import *
 # from pynput import keyboard
 # import keyboard
 import Player
+import Tile
 
 
 # All rectangle have left, bottom position as their offset
@@ -9,10 +10,12 @@ import Player
 class GameRunner:
 	def __init__(self):
 		# init game here
+
 		self.bGameLoop = True
 
 		# Game Objects
-		self.mario = Player.Player()
+		self.mario = Player.Player(80, 80, 2)
+		self.tiles = [Tile.Tile(0, 0, True, True, 0)]
 
 	# Constructor end
 
@@ -34,9 +37,26 @@ class GameRunner:
 	# Input End
 
 	def update(self):
-		self.mario.move()
 		# collide check here
+		bLand = False
+		l, b, r, t = self.mario.get_position()
+
+		# Falling Check
+		left_index = (l - 1) // Tile.TILE_SIZE
+		bottom_index = (b - 1) // Tile.TILE_SIZE
+		right_index = (r + 1) // Tile.TILE_SIZE
+		top_index = (t + 1) // Tile.TILE_SIZE
+
+		if bottom_index < 0:
+			# PlayerDead
+			pass
+		elif self.tiles[int(bottom_index)][int(left_index)].get_is_collidable() or self.tiles[int(bottom_index)][int(right_index)].get_is_collidable():
+			bLand = True
+
 		# fill
+
+		self.mario.move(bLand * 40)
+
 		pass
 
 	# Update End
@@ -46,6 +66,8 @@ class GameRunner:
 
 		self.mario.draw()
 		update_canvas()
+
+
 # Draw End
 
 

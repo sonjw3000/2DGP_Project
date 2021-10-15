@@ -31,6 +31,10 @@ class Player:
 		self.__x = x
 		self.__y = y
 
+		# bef pos
+		self.__bef_x = x
+		self.__bef_y = y
+
 		# Mario Current Size
 		self.__size = size
 
@@ -48,7 +52,10 @@ class Player:
 
 	# Returns rectangle tuple (Left, Bottom, Right, Top)
 	def get_position(self):
-		return self.__x - 8, self.__y - 16, self.__x + 8, self.__y + (self.__size != 0) * (self.__bSitDown != 0) * 16
+		return (self.__x - Tile.TILE_SIZE / 2,
+				self.__y - Tile.TILE_SIZE + ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE / 2),
+				self.__x + Tile.TILE_SIZE / 2,
+				self.__y + Tile.TILE_SIZE - ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE / 2))
 
 	def input(self):
 		bKeyPressed = False
@@ -137,24 +144,34 @@ class Player:
 		# Move End
 
 		if self.__size == 2 and is_pressed('ctrl'):
-			# Make bullet here
+			if not self.__bAttack:
+				# Make bullet here
+				pass
+
 			self.__bAttack = True
 		else:
 			self.__bAttack = False
 
 	# Input End
 
-	def move(self, land=False):
+	def move(self, land=0, x_col=False):
 		self.__x += self.__speed_x
 		self.__y += self.__speed_y
 
+		# Hit wall
+		if x_col:
+			self.__x = self.__bef_x
+
 		# It's falling and land
-		if self.__speed_y < 0 and (land or self.__y <= Tile.TILE_SIZE - ((self.__size == 0) * Tile.TILE_SIZE / 2)):
-			self.__y = Tile.TILE_SIZE - ((self.__size == 0) * Tile.TILE_SIZE / 2)
+		if (self.__speed_y < 0 and self.__bFalling) and (land or self.__y <= Tile.TILE_SIZE - ((self.__size == 0) * Tile.TILE_SIZE / 2)):
+			self.__y = land + Tile.TILE_SIZE
 			self.__speed_y = 0
 			self.__bJump = False
 			self.__bFalling = False
 			self.__yMove = 0
+
+		self.__bef_x = self.__x
+		self.__bef_y = self.__y
 
 	def draw(self):
 		# print(self.__speed_x)

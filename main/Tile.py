@@ -7,6 +7,7 @@ TILE_SIZE = 40
 
 # Floor : 0
 # Breakable Block : 33
+# Empty_Sky = 56
 # Item Block :
 
 
@@ -15,7 +16,7 @@ class Tile:
 	__imageSpriteOverWorld = None
 
 	# right bottom == (0, 0)
-	def __init__(self, x, y, collide, breakable, tile_number):
+	def __init__(self, x, y, collide, breakable, tile_number, item_num=0):
 		self.__x = x + TILE_SIZE // 2
 		self.__y = y + TILE_SIZE // 2
 
@@ -27,6 +28,12 @@ class Tile:
 
 		self.__frame = 0
 
+		# Mushroom : 0
+		# Flower : 1
+		# Star : 2
+		if self.__type == 64:
+			self.__item = item_num
+
 		# Types
 		# Just see the image file, 0 == > (0,0) img, ...
 		pass
@@ -34,28 +41,32 @@ class Tile:
 	def get_position(self):
 		return self.__x - TILE_SIZE / 2, self.__y - TILE_SIZE / 2, self.__x + TILE_SIZE / 2, self.__y + TILE_SIZE / 2
 
+	def get_is_collidable(self):
+		return self.__bCollideOn
+
 	def is_breakable(self):
 		return self.__bBreakable
 
 	def update(self, collide=False):
 		# if col? then do sth
 		if collide:
-			if self.__type == 64:  # It's Item Box
+			if self.__type == 64:  # Item Box
 				self.__bBroken = True
 				self.__bBreakable = False
 				self.__frame = 4
+			elif self.__type == 33:  # Breakable Block
+				self.__type = 56
 
 		if self.__type == 64 and not self.__bBroken:  # It's Item Box
 			self.__frame = (self.__frame + 1) % 40
 		pass
 
 	# type 0 : over world, 1 : underground
-	def draw(self, world_type):
-		if world_type == 0:
-			self.__imageSpriteOverWorld.clip_draw(
-				1 + (self.__type % 16) * 17 + (self.__frame // 10) * 17,
-				1 + (self.__type // 16) * 17,
-				16, 16, self.__x, self.__y, TILE_SIZE, TILE_SIZE)
+	def draw(self):
+		self.__imageSpriteOverWorld.clip_draw(
+			1 + (self.__type % 16) * 17 + (self.__frame // 10) * 17,
+			1 + (self.__type // 16) * 17,
+			16, 16, self.__x, self.__y, TILE_SIZE, TILE_SIZE)
 
 	@classmethod
 	def set_image(cls, tileImage):
@@ -112,7 +123,7 @@ if __name__ == "__main__":
 		clear_canvas()
 		mario.draw()
 		for tile in myTiles:
-			tile.draw(0)
+			tile.draw()
 		update_canvas()
 		delay(0.01)
 
