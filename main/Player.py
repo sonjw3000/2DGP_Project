@@ -53,9 +53,17 @@ class Player:
 	# Returns rectangle tuple (Left, Bottom, Right, Top)
 	def get_position(self):
 		return (self.__x - Tile.TILE_SIZE / 2,
-				self.__y - Tile.TILE_SIZE + ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE / 2),
+				self.__y - Tile.TILE_SIZE,
 				self.__x + Tile.TILE_SIZE / 2,
-				self.__y + Tile.TILE_SIZE - ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE / 2))
+				self.__y + Tile.TILE_SIZE - ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE))
+
+	def hit_ceil(self):
+		if self.__speed_y <= 0:
+			return False
+
+		self.__speed_y *= -1
+		self.__bFalling = True
+		return True
 
 	def input(self):
 		bKeyPressed = False
@@ -154,7 +162,16 @@ class Player:
 
 	# Input End
 
+	def go_x_back(self):
+		self.__x = self.__bef_x
+
+	def is_jumping(self):
+		return self.__bJump or self.__bFalling
+
 	def move(self, land=0, x_col=False):
+		self.__bef_x = self.__x
+		self.__bef_y = self.__y
+
 		self.__x += self.__speed_x
 		self.__y += self.__speed_y
 
@@ -163,15 +180,15 @@ class Player:
 			self.__x = self.__bef_x
 
 		# It's falling and land
-		if (self.__speed_y < 0 and self.__bFalling) and (land or self.__y <= Tile.TILE_SIZE - ((self.__size == 0) * Tile.TILE_SIZE / 2)):
+		if (self.__speed_y < 0 and self.__bFalling) and land:
 			self.__y = land + Tile.TILE_SIZE
 			self.__speed_y = 0
 			self.__bJump = False
 			self.__bFalling = False
 			self.__yMove = 0
 
-		self.__bef_x = self.__x
-		self.__bef_y = self.__y
+		if not land and not self.__bJump:
+			self.__bFalling = True
 
 	def draw(self):
 		# print(self.__speed_x)

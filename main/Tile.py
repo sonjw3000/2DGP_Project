@@ -6,9 +6,9 @@ TILE_SIZE = 40
 
 
 # Floor : 0
-# Breakable Block : 33
+# Normal Block : 33
 # Empty_Sky = 56
-# Item Block :
+# Item Block : 64
 
 
 class Tile:
@@ -20,19 +20,22 @@ class Tile:
 		self.__x = x + TILE_SIZE // 2
 		self.__y = y + TILE_SIZE // 2
 
+		self.__offsetY = 0
+
 		self.__bCollideOn = collide
 		self.__bBreakable = breakable
 		self.__type = tile_number
 
+		self.__bBreaking_Animation = False
 		self.__bBroken = False
 
 		self.__frame = 0
 
-		# Mushroom : 0
-		# Flower : 1
-		# Star : 2
-		if self.__type == 64:
-			self.__item = item_num
+		# Mushroom : 1
+		# Flower : 2
+		# Star : 3
+
+		self.__item = item_num
 
 		# Types
 		# Just see the image file, 0 == > (0,0) img, ...
@@ -41,32 +44,72 @@ class Tile:
 	def get_position(self):
 		return self.__x - TILE_SIZE / 2, self.__y - TILE_SIZE / 2, self.__x + TILE_SIZE / 2, self.__y + TILE_SIZE / 2
 
-	def get_is_collidable(self):
-		return self.__bCollideOn
+	def get_is_collidable(self, is_from_bottom=False):
+		return self.__bCollideOn or (is_from_bottom and self.__item)
 
 	def is_breakable(self):
 		return self.__bBreakable
 
+	def collide(self):
+		if (self.__type == 64 or self.__item) and not self.__bBroken:  # Item Box
+			self.__type = 64
+			self.__bCollideOn = True
+			self.__bBroken = True
+			self.__bBreakable = False
+			self.__bBreaking_Animation = True
+		elif self.__type == 33:  # Breakable Block
+			# self.__type = 56
+			self.__bCollideOn = False
+			self.__bBreaking_Animation = True
+
 	def update(self, collide=False):
 		# if col? then do sth
-		if collide:
-			if self.__type == 64:  # Item Box
-				self.__bBroken = True
-				self.__bBreakable = False
-				self.__frame = 4
-			elif self.__type == 33:  # Breakable Block
-				self.__type = 56
-
 		if self.__type == 64 and not self.__bBroken:  # It's Item Box
 			self.__frame = (self.__frame + 1) % 40
+
+		if self.__bBreaking_Animation:
+			# Blocks go up
+			self.__offsetY += 5
+			if self.__type == 64 and self.__frame == 4:
+				self.__offsetY -= 10
+
+			# if complete going up
+			if self.__offsetY >= TILE_SIZE // 2:
+				self.__bBreaking_Animation = False
+				# if type == 64: frame = 4 and go down
+				if self.__item:
+					self.__type = 64
+					self.__bBroken = True
+					self.__frame = 40
+					# Make Item Here
+					pass
+				elif self.__type == 33:
+					self.__type = 56
+					self.__offsetY = 0
+					# start fragment animation here
+					pass
+
 		pass
 
 	# type 0 : over world, 1 : underground
 	def draw(self):
-		self.__imageSpriteOverWorld.clip_draw(
-			1 + (self.__type % 16) * 17 + (self.__frame // 10) * 17,
-			1 + (self.__type // 16) * 17,
-			16, 16, self.__x, self.__y, TILE_SIZE, TILE_SIZE)
+		if self.__bBreaking_Animation:
+			self.__imageSpriteOverWorld.clip_draw(
+				1 + (56 % 16) * 17,
+				1 + (56 // 16) * 17,
+				16, 16, self.__x, self.__y, TILE_SIZE, TILE_SIZE)
+		else:
+			self.__imageSpriteOverWorld.clip_draw(
+				1 + (self.__type % 16) * 17 + (self.__frame // 10) * 17,
+				1 + (self.__type // 16) * 17,
+				16, 16, self.__x, self.__y, TILE_SIZE, TILE_SIZE)
+
+	def draw_breaking(self):
+		if self.__bBreaking_Animation:
+			self.__imageSpriteOverWorld.clip_draw(
+				1 + (self.__type % 16) * 17 + (self.__frame // 10) * 17,
+				1 + (self.__type // 16) * 17,
+				16, 16, self.__x, self.__y + self.__offsetY, TILE_SIZE, TILE_SIZE)
 
 	@classmethod
 	def set_image(cls, tileImage):
