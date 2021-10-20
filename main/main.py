@@ -6,6 +6,7 @@ import Tile
 import Bullet
 import Monster
 
+
 # All rectangle have left, bottom position as their offset
 
 class GameRunner:
@@ -19,6 +20,7 @@ class GameRunner:
 		self.tiles = [Tile.Tile(0, 0, True, True, 0)]
 		self.monsters = []
 		self.bullets = []
+
 	# Constructor end
 
 	def __handle_events(self):
@@ -130,6 +132,10 @@ class GameRunner:
 	# 	# pass
 	#
 	# 	return (bLand * Tile.TILE_SIZE * (bottom_index + 1)), xCol
+	def rect_col_check(self, rt1, rt2):
+		rl, rb, rr, rt = rt1
+		ll, lb, lr, lt = rt2
+		return rl <= lr and rr >= ll and rt >= lb and rb <= lt
 
 	def update(self):
 		# Player and Tile collide check
@@ -158,7 +164,24 @@ class GameRunner:
 			if not bullet.update(bullet_yCol):
 				self.bullets.remove(bullet)
 
-		# for
+		for monster in self.monsters:
+			l, b, r, t = monster.get_position()
+			result = self.__collide_check_with_tile(l, b, r, t, False)
+
+			for bullet in self.bullets:
+				rect = bullet.get_position()
+				if self.rect_col_check(rect, (l, b, r, t)):
+					self.monsters.remove(monster)
+					continue
+
+			if result != None:
+				Monster_xCol, monster_yCol = result
+			else:
+				# Monster Dead
+				return
+			if Monster_xCol:
+				monster.reverse()
+			monster.update(monster_yCol * Tile.TILE_SIZE)
 
 		# Tile Update
 		for line in self.tiles:
@@ -189,6 +212,8 @@ class GameRunner:
 		self.mario.draw()
 		update_canvas()
 
+	# Draw End
+
 	def init_game(self):
 		bullet_img = load_image('./resource/bullets.png')
 		tileImage = load_image('./resource/tiles/overworld.png')
@@ -197,10 +222,6 @@ class GameRunner:
 		Tile.Tile.set_image(tileImage)
 		Bullet.Bullet.set_image(bullet_img)
 		Monster.Monster.set_image(monsterImage)
-
-
-
-# Draw End
 
 
 # Class End

@@ -1,6 +1,6 @@
 from pico2d import *
 
-MONSTER_SPEED_X = 3
+MONSTER_SPEED_X = 1.5
 MONSTER_SIZE = 40
 
 
@@ -23,7 +23,7 @@ class Monster:
 		# Move here
 		self.__x -= (1 - self.__dir * 2) * MONSTER_SPEED_X
 
-		if y_col:
+		if not y_col:
 			self.__y -= self.__ySpeed
 			self.__ySpeed += 0.2
 			if self.__ySpeed >= 2:
@@ -39,8 +39,12 @@ class Monster:
 				self.__y + MONSTER_SIZE / 2)
 
 	def draw(self):
-		self.__image.clip_draw(17 * (self.__frame // 10), self.__type * 47, 16, 16 + ((self.__type == 0) * 7),
+		self.__image.clip_draw(17 * (self.__frame // 10), self.__type * 23, 16, 16 + ((self.__type == 0) * 7),
 							   self.__x, self.__y, MONSTER_SIZE, MONSTER_SIZE + ((self.__type == 0) * MONSTER_SIZE / 2))
+
+	def reverse(self):
+		self.__dir = not self.__dir
+		self.__x -= (1 - self.__dir * 2) * MONSTER_SPEED_X
 
 	@classmethod
 	def set_image(cls, monster_image):
