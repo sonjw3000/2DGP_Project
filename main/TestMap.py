@@ -12,10 +12,8 @@ import main
 # 맵툴을 만들자 제발
 # 가로 20, 세로 15
 TestMap = [
-	[
-		Tile(TILE_SIZE * i, TILE_SIZE * 0, True, False, 0) for i in range(20)
-	],
-	[Tile(TILE_SIZE * i, TILE_SIZE * 1, False, False, 56) for i in range(20)],
+	[Tile(TILE_SIZE * i, TILE_SIZE * 0, True, False, 0) for i in range(20)],
+	[Tile(TILE_SIZE * i, TILE_SIZE * 1, False + (i == 19 or i == 14), False, 56 - 56 * (i == 19 or i == 14)) for i in range(20)],
 	[Tile(TILE_SIZE * i, TILE_SIZE * 2, False, False, 56) for i in range(20)],
 	[Tile(TILE_SIZE * i, TILE_SIZE * 3, False, False, 56) for i in range(20)],
 	[Tile(TILE_SIZE * i, TILE_SIZE * 4, True, True, 33) for i in range(20)],
@@ -26,13 +24,13 @@ TestMap = [
 	[Tile(TILE_SIZE * i, TILE_SIZE * 9, False, False, 56) for i in range(20)],
 	[Tile(TILE_SIZE * i, TILE_SIZE * 10, False, False, 56) for i in range(20)],
 	[Tile(TILE_SIZE * i, TILE_SIZE * 11, False, False, 56) for i in range(20)],
-	[Tile(TILE_SIZE * i, TILE_SIZE * 12, False, False, 56) for i in range(20)],
+	[Tile(TILE_SIZE * i, TILE_SIZE * 12, True, True, 64 - (i // 10) * 8, 1) for i in range(20)],
 	[Tile(TILE_SIZE * i, TILE_SIZE * 13, False, False, 56) for i in range(20)],
 	[Tile(TILE_SIZE * i, TILE_SIZE * 14, False, False, 56) for i in range(20)],
 ]
 
 Monster = [
-	Monster.Monster(300, 60, 1, False)
+	Monster.Monster(700, 60, 1, False)
 ]
 
 if __name__ == "__main__":
