@@ -1,6 +1,6 @@
 from pico2d import *
 
-BULLET_SPEED_X = 4
+BULLET_SPEED_X = 5
 BULLET_SPEED_Y = 3
 
 BULLET_SIZE = 20
@@ -9,12 +9,13 @@ BULLET_SIZE = 20
 class Bullet:
 	__image = None
 
-	def __init__(self, x, y):
+	def __init__(self, x, y, b_dir):
 		# It can active until x go + 500
 		self.__max_lifespan = 150
 		self.__cur_life = 0
 		self.__x, self.__y = x, y
 
+		self.__x_Speed = -BULLET_SPEED_X + 2 * b_dir * BULLET_SPEED_X
 		self.__y_Speed = -BULLET_SPEED_Y
 
 		self.__frame = 0
@@ -30,7 +31,7 @@ class Bullet:
 		if self.__y_Speed <= -BULLET_SPEED_Y:
 			self.__y_Speed = -BULLET_SPEED_Y
 
-		self.__x += BULLET_SPEED_X
+		self.__x += self.__x_Speed
 		self.__y += self.__y_Speed
 		self.__y_Speed -= 0.2
 

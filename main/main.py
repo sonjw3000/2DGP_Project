@@ -36,7 +36,7 @@ class GameRunner:
 		pos = self.mario.input()
 		if pos != None:
 			x, y = pos
-			bullet = Bullet.Bullet(x, y)
+			bullet = Bullet.Bullet(x, y, self.mario.get_dir())
 			self.bullets.append(bullet)
 
 	# Input End
@@ -82,53 +82,53 @@ class GameRunner:
 
 		return xCol, yCol * (bottom_index + 1)
 
-	def __collide_check(self):
-		# collide check here
-		bLand = False
-		xCol = False
-		l, b, r, t = self.mario.get_position()
-
-		left_index = int((l - 1) // Tile.TILE_SIZE)
-		bottom_index = int((b - 1) // Tile.TILE_SIZE)
-		right_index = int(r // Tile.TILE_SIZE)
-		top_index = int(t // Tile.TILE_SIZE)
-
-		# Check X block
-		# Right with block
-		if left_index < 0:
-			xCol = self.mario.go_x_back()
-			left_index = 0
-		elif right_index >= self.max_x_index:
-			xCol = self.mario.go_x_back()
-			right_index = self.max_x_index - 1
-		elif self.tiles[bottom_index + 1][left_index].get_is_collidable() or \
-				self.tiles[top_index][left_index].get_is_collidable():
-			xCol = self.mario.go_x_back()
-		elif self.tiles[bottom_index + 1][right_index].get_is_collidable() or \
-				self.tiles[top_index][right_index].get_is_collidable():
-			xCol = self.mario.go_x_back()
-
-		# Falling Check
-		# Check Y axis Collide
-		if bottom_index < 0:
-			# PlayerDead
-			pass
-		elif self.tiles[bottom_index][left_index].get_is_collidable() or \
-				self.tiles[bottom_index][right_index].get_is_collidable():
-			bLand = True
-		elif self.tiles[top_index][left_index].get_is_collidable(True) or \
-				self.tiles[top_index][right_index].get_is_collidable(True):
-			# hit bottom of the box
-			# * -1 jump speed
-			if self.mario.hit_ceil():
-				# break tile
-				self.tiles[int(top_index)][int(left_index)].collide()
-				self.tiles[int(top_index)][int(right_index)].collide()
-
-		# Monster Y Check
-		# pass
-
-		return (bLand * Tile.TILE_SIZE * (bottom_index + 1)), xCol
+	# def __collide_check(self):
+	# 	# collide check here
+	# 	bLand = False
+	# 	xCol = False
+	# 	l, b, r, t = self.mario.get_position()
+	#
+	# 	left_index = int((l - 1) // Tile.TILE_SIZE)
+	# 	bottom_index = int((b - 1) // Tile.TILE_SIZE)
+	# 	right_index = int(r // Tile.TILE_SIZE)
+	# 	top_index = int(t // Tile.TILE_SIZE)
+	#
+	# 	# Check X block
+	# 	# Right with block
+	# 	if left_index < 0:
+	# 		xCol = self.mario.go_x_back()
+	# 		left_index = 0
+	# 	elif right_index >= self.max_x_index:
+	# 		xCol = self.mario.go_x_back()
+	# 		right_index = self.max_x_index - 1
+	# 	elif self.tiles[bottom_index + 1][left_index].get_is_collidable() or \
+	# 			self.tiles[top_index][left_index].get_is_collidable():
+	# 		xCol = self.mario.go_x_back()
+	# 	elif self.tiles[bottom_index + 1][right_index].get_is_collidable() or \
+	# 			self.tiles[top_index][right_index].get_is_collidable():
+	# 		xCol = self.mario.go_x_back()
+	#
+	# 	# Falling Check
+	# 	# Check Y axis Collide
+	# 	if bottom_index < 0:
+	# 		# PlayerDead
+	# 		pass
+	# 	elif self.tiles[bottom_index][left_index].get_is_collidable() or \
+	# 			self.tiles[bottom_index][right_index].get_is_collidable():
+	# 		bLand = True
+	# 	elif self.tiles[top_index][left_index].get_is_collidable(True) or \
+	# 			self.tiles[top_index][right_index].get_is_collidable(True):
+	# 		# hit bottom of the box
+	# 		# * -1 jump speed
+	# 		if self.mario.hit_ceil():
+	# 			# break tile
+	# 			self.tiles[int(top_index)][int(left_index)].collide()
+	# 			self.tiles[int(top_index)][int(right_index)].collide()
+	#
+	# 	# Monster Y Check
+	# 	# pass
+	#
+	# 	return (bLand * Tile.TILE_SIZE * (bottom_index + 1)), xCol
 
 	def update(self):
 		# Player and Tile collide check
@@ -156,7 +156,6 @@ class GameRunner:
 				continue
 			if not bullet.update(bullet_yCol):
 				self.bullets.remove(bullet)
-
 
 		# Tile Update
 		for line in self.tiles:

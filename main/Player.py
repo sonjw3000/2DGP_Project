@@ -239,6 +239,10 @@ class Player:
 
 	# Draw End
 
+	# returns true when dir == right
+	def get_dir(self):
+		return self.__bLookRight
+
 	# Test Funcs
 	def sprite_up(self):
 		self.__imgSprite += 1
