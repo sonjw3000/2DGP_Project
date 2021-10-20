@@ -1,5 +1,6 @@
 from Tile import *
 from pico2d import *
+from Bullet import *
 # from pynput import keyboard
 # import keyboard
 import Player
@@ -31,11 +32,9 @@ TestMap = [
 
 if __name__ == "__main__":
 	# Init game Settings
-	open_canvas()
 	game = main.GameRunner()
-	tileImage = load_image('./resource/tiles/overworld.png')
-	Tile.set_image(tileImage)
 
+	game.init_game()
 	game.tiles = TestMap
 
 	# Game Loop

@@ -3,6 +3,7 @@ from pico2d import *
 # import keyboard
 import Player
 import Tile
+import Bullet
 
 
 # All rectangle have left, bottom position as their offset
@@ -90,9 +91,11 @@ class GameRunner:
 			for t in line:
 				t.update()
 
-		self.mario.move(yCol, xCol)
+		for bullet in self.bullets:
+			bullet.update()
 
-		pass
+
+		self.mario.move(yCol, xCol)
 
 	# Update End
 
@@ -109,6 +112,20 @@ class GameRunner:
 
 		self.mario.draw()
 		update_canvas()
+
+	def init_game(self):
+		open_canvas()
+
+		bullet_img = load_image('./resource/bullets.png')
+		tileImage = load_image('./resource/tiles/overworld.png')
+
+		Tile.Tile.set_image(tileImage)
+		Bullet.Bullet.set_image(bullet_img)
+
+		self.bullets = []
+
+
+
 
 
 # Draw End
