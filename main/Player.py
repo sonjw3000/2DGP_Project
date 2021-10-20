@@ -153,12 +153,13 @@ class Player:
 
 		if self.__size == 2 and is_pressed('ctrl'):
 			if not self.__bAttack:
+				self.__bAttack = True
 				# Make bullet here
-				pass
-
-			self.__bAttack = True
+				return self.__x + Tile.TILE_SIZE * (1 - 2 * (not self.__bLookRight)), self.__y
 		else:
 			self.__bAttack = False
+
+		return None
 
 	# Input End
 

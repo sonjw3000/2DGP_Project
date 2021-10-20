@@ -32,6 +32,8 @@ TestMap = [
 
 if __name__ == "__main__":
 	# Init game Settings
+	open_canvas()
+
 	game = main.GameRunner()
 
 	game.init_game()
