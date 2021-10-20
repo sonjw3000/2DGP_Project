@@ -4,20 +4,21 @@ from pico2d import *
 import Player
 import Tile
 import Bullet
-
+import Monster
 
 # All rectangle have left, bottom position as their offset
 
 class GameRunner:
 	def __init__(self):
 		# init game here
-
 		self.bGameLoop = True
 		self.max_x_index = 20
+
 		# Game Objects
 		self.mario = Player.Player(80, 80, 2)
 		self.tiles = [Tile.Tile(0, 0, True, True, 0)]
-
+		self.monsters = []
+		self.bullets = []
 	# Constructor end
 
 	def __handle_events(self):
@@ -157,12 +158,14 @@ class GameRunner:
 			if not bullet.update(bullet_yCol):
 				self.bullets.remove(bullet)
 
+		# for
+
 		# Tile Update
 		for line in self.tiles:
 			for t in line:
 				t.update()
 
-		self.mario.move(yCol * Tile.TILE_SIZE, xCol)
+		self.mario.move(yCol * Tile.TILE_SIZE)
 
 	# Update End
 
@@ -180,17 +183,21 @@ class GameRunner:
 		for bullet in self.bullets:
 			bullet.draw()
 
+		for monster in self.monsters:
+			monster.draw()
+
 		self.mario.draw()
 		update_canvas()
 
 	def init_game(self):
 		bullet_img = load_image('./resource/bullets.png')
 		tileImage = load_image('./resource/tiles/overworld.png')
+		monsterImage = load_image('./resource/monsters.png')
 
 		Tile.Tile.set_image(tileImage)
 		Bullet.Bullet.set_image(bullet_img)
+		Monster.Monster.set_image(monsterImage)
 
-		self.bullets = []
 
 
 # Draw End

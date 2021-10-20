@@ -4,6 +4,7 @@ from Bullet import *
 # from pynput import keyboard
 # import keyboard
 import Player
+import Monster
 import main
 
 # 800, 600
@@ -30,6 +31,10 @@ TestMap = [
 	[Tile(TILE_SIZE * i, TILE_SIZE * 14, False, False, 56) for i in range(20)],
 ]
 
+Monster = [
+	Monster.Monster(300, 60, 1, False)
+]
+
 if __name__ == "__main__":
 	# Init game Settings
 	open_canvas()
@@ -38,6 +43,7 @@ if __name__ == "__main__":
 
 	game.init_game()
 	game.tiles = TestMap
+	game.monsters = Monster
 
 	# Game Loop
 	while game.bGameLoop:

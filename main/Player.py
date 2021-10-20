@@ -169,16 +169,12 @@ class Player:
 	def is_jumping(self):
 		return self.__bJump or self.__bFalling
 
-	def move(self, land=0, x_col=False):
+	def move(self, land=0):
 		self.__bef_x = self.__x
 		self.__bef_y = self.__y
 
 		self.__x += self.__speed_x
 		self.__y += self.__speed_y
-
-		# Hit wall
-		if x_col:
-			self.__x = self.__bef_x
 
 		# It's falling and land
 		if (self.__speed_y < 0 and self.__bFalling) and land:
