@@ -1,7 +1,7 @@
 from pico2d import *
 
-BULLET_SPEED_X = 5
-BULLET_SPEED_Y = 3
+BULLET_SPEED_X = 7
+BULLET_SPEED_Y = 2.6
 
 BULLET_SIZE = 20
 

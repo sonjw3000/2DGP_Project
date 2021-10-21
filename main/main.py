@@ -51,7 +51,6 @@ class GameRunner:
 
 		xCol = False
 		yCol = False
-		bHitCeil = False
 
 		# x collide check here
 		if left_index < 0:
