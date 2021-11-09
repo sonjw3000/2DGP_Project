@@ -9,6 +9,12 @@ import Monster
 
 # All rectangle have left, bottom position as their offset
 
+def rect_col_check(rt1, rt2):
+	rl, rb, rr, rt = rt1
+	ll, lb, lr, lt = rt2
+	return rl <= lr and rr >= ll and rt >= lb and rb <= lt
+
+
 class GameRunner:
 	def __init__(self):
 		# init game here
@@ -131,19 +137,17 @@ class GameRunner:
 	# 	# pass
 	#
 	# 	return (bLand * Tile.TILE_SIZE * (bottom_index + 1)), xCol
-	def rect_col_check(self, rt1, rt2):
-		rl, rb, rr, rt = rt1
-		ll, lb, lr, lt = rt2
-		return rl <= lr and rr >= ll and rt >= lb and rb <= lt
 
-	def update(self):
+
+	def update(self, delta_time=1):
+		dt = get_time()
 		# Player and Tile collide check
 		l, b, r, t = self.mario.get_position()
 		result = self.__collide_check_with_tile(l, b, r, t, True)
 		if result != None:
 			xCol, yCol = result
 		else:
-			# Player Dead
+			# Player Dead if out of range
 			return
 		if xCol:
 			self.mario.go_x_back()
@@ -163,31 +167,48 @@ class GameRunner:
 			if not bullet.update(bullet_yCol):
 				self.bullets.remove(bullet)
 
+		# Monster
 		for monster in self.monsters:
 			l, b, r, t = monster.get_position()
-			result = self.__collide_check_with_tile(l, b, r, t, False)
 
+			# col check with player
+			# if mon die? pop this
+			# else break game
+
+			# collide with bullets
 			for bullet in self.bullets:
-				rect = bullet.get_position()
-				if self.rect_col_check(rect, (l, b, r, t)):
+				bul_rect = bullet.get_position()
+				if self.rect_col_check(bul_rect, (l, b, r, t)):
 					self.monsters.remove(monster)
 					continue
+
+			# tiles
+			result = self.__collide_check_with_tile(l, b, r, t, False)
+
+
+
 
 			if result != None:
 				Monster_xCol, monster_yCol = result
 			else:
-				# Monster Dead
-				return
+				# Monster Dead, monster out of range
+				# delete this monster
+				continue
+				pass
 			if Monster_xCol:
 				monster.reverse()
-			monster.update(monster_yCol * Tile.TILE_SIZE)
+				monster.update(monster_yCol * Tile.TILE_SIZE)
+
+
+
+
 
 		# Tile Update
 		for line in self.tiles:
 			for t in line:
 				t.update()
 
-		self.mario.move(yCol * Tile.TILE_SIZE)
+		self.mario.move(yCol * Tile.TILE_SIZE, dt)
 
 	# Update End
 
