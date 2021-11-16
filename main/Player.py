@@ -16,22 +16,20 @@ PLAYER_SPEED_MPM = (PLAYER_SPEED_KMPH * 1000.0 / 60.0)
 PLAYER_SPEED_MPS = (PLAYER_SPEED_MPM / 60.0)
 PLAYER_SPEED_PPS = (PLAYER_SPEED_MPS * PIXEL_PER_METER)
 
-PLAYER_TERMINAL_VELOCITY_KMPH = 80.0  # Km / Hour
+PLAYER_TERMINAL_VELOCITY_KMPH = 40.0  # Km / Hour
 PLAYER_TERMINAL_VELOCITY_MPM = (PLAYER_TERMINAL_VELOCITY_KMPH * 1000.0 / 60.0)
 PLAYER_TERMINAL_VELOCITY_MPS = (PLAYER_TERMINAL_VELOCITY_MPM / 60.0)
 PLAYER_TERMINAL_VELOCITY_PPS = (PLAYER_TERMINAL_VELOCITY_MPS * PIXEL_PER_METER)
 
 # Running Action Speed
-# 초당 50번 (0.02에 한번)
-TIME_PER_ACTION = 0.02
+# 0.5에 한번
+TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 4
 
 PLAYER_SPEED_X = 0.3
 PLAYER_MAX_SPEED_X = 2.5
 
-PLAYER_SPEED_Y = 0.2
-PLAYER_MAX_SPEED_Y = 7
 PLAYER_MAX_JUMP_HEIGHT = 100
 
 
@@ -182,6 +180,13 @@ class Player:
 
 	def go_x_back(self):
 		self.__x = self.__bef_x
+		self.__speed_x = 0
+
+	def land(self, y_pos):
+		self.__speed_y = 0
+		self.__y = y_pos + Tile.TILE_SIZE
+		self.__bJump = False
+		self.__bFalling = False
 
 	def is_jumping(self):
 		return self.__bJump or self.__bFalling
@@ -213,10 +218,10 @@ class Player:
 
 		# y axis
 		self.__speed_y -= 9.8 * PIXEL_PER_METER * game_framework.frame_time
-		if self.__speed_y > -PLAYER_TERMINAL_VELOCITY_PPS:
+		if self.__speed_y < -PLAYER_TERMINAL_VELOCITY_PPS:
 			self.__speed_y = -PLAYER_TERMINAL_VELOCITY_PPS
 
-		# self.__y += self.__speed_y * game_framework.frame_time
+		self.__y += self.__speed_y * game_framework.frame_time
 
 		# # It's falling and land
 		# if (self.__speed_y < 0 and self.__bFalling) and land:
@@ -275,7 +280,7 @@ class Player:
 			self.__frame = 0
 
 		self.__characterImageSprite.clip_draw(
-			(self.__imgSprite + (bFrame * self.__frame // 10)) * 17 + 153 * self.__bLookRight,
+			(self.__imgSprite + (bFrame * int(self.__frame))) * 17 + 153 * self.__bLookRight,
 			(2 - self.__size) * 33,
 			16, 32, self.__x, self.__y, Tile.TILE_SIZE, Tile.TILE_SIZE + (Tile.TILE_SIZE * (not self.__size == 0)))
 

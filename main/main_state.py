@@ -39,7 +39,7 @@ def test():
 
 	# Player
 	global gamePlayer
-	gamePlayer = Player.Player()
+	gamePlayer = Player.Player(50, 80)
 	game_objects.add_object(gamePlayer, 3)
 	tileImage = load_image('./resource/tiles/overworld.png')
 	Tile.Tile.set_image(tileImage)
@@ -62,8 +62,7 @@ def collide_check(a, b):
 
 
 # returns x, y collide, if out of range, return None
-def tile_collide_check(box):
-	left, bottom, right, top = box.get_position()
+def tile_collide_check(left, bottom, right, top):
 	left_index = int((left - 1) // Tile.TILE_SIZE)
 	bottom_index = int((bottom - 1) // Tile.TILE_SIZE)
 	right_index = int(right // Tile.TILE_SIZE)
@@ -71,6 +70,10 @@ def tile_collide_check(box):
 
 	xCol = False
 	yCol = False
+
+	if bottom_index < 0:
+		# Player dead or Bullet dead
+		return None
 
 	# x collide check here
 	if left_index < 0:
@@ -87,10 +90,7 @@ def tile_collide_check(box):
 		xCol = True
 
 	# y collide check here
-	if bottom_index < 0:
-		# Player dead or Bullet dead
-		return None
-	elif tiles[bottom_index][left_index].get_is_collidable() or \
+	if tiles[bottom_index][left_index].get_is_collidable() or \
 			tiles[bottom_index][right_index].get_is_collidable():
 		yCol = True
 	elif (tiles[top_index][left_index].get_is_collidable(True) or \
@@ -126,8 +126,30 @@ def update():
 	for objs in game_objects.all_objects():
 		objs.update()
 
-	x, y = tile_collide_check(gamePlayer)
-	print(x, y)
+	# player-tile collide
+	# print('hello')
+	state = tile_collide_check(*(gamePlayer.get_position()))
+	if state != None:
+		x_collide, y_collide = state
+		if x_collide:
+			gamePlayer.go_x_back()
+		if y_collide:
+			gamePlayer.land(y_collide * Tile.TILE_SIZE)
+	else:
+		print("fuck you")
+
+
+	# player-monster collide
+
+	# monster-bullet collide
+
+	# monster-tile collide
+	for monster in monsters:
+		x_collide, y_collide = tile_collide_check(*(monster.get_position()))
+		if x_collide:
+			monster.reverse()
+		if y_collide:
+			monster.land(y_collide * Tile.TILE_SIZE)
 
 
 def draw():

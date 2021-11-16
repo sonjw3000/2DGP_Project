@@ -14,6 +14,10 @@ Monster_SPEED_MPM = (Monster_SPEED_KMPH * 1000.0 / 60.0)
 Monster_SPEED_MPS = (Monster_SPEED_MPM / 60.0)
 Monster_SPEED_PPS = (Monster_SPEED_MPS * PIXEL_PER_METER)
 
+Monster_TERMINAL_VELOCITY_KMPH = 80.0  # Km / Hour
+Monster_TERMINAL_VELOCITY_MPM = (Monster_TERMINAL_VELOCITY_KMPH * 1000.0 / 60.0)
+Monster_TERMINAL_VELOCITY_MPS = (Monster_TERMINAL_VELOCITY_MPM / 60.0)
+Monster_TERMINAL_VELOCITY_PPS = (Monster_TERMINAL_VELOCITY_MPS * PIXEL_PER_METER)
 
 # Running Action Speed
 # 초당 50번 (0.02에 한번)
@@ -38,14 +42,14 @@ class Monster:
 
 	def update(self):
 		# Move here
+		# x axis
 		self.__x -= (1 - self.__dir * 2) * Monster_SPEED_PPS * game_framework.frame_time
-		# if not y_col:
-		# 	self.__y -= self.__ySpeed
-		# 	self.__ySpeed += 0.2
-		# 	if self.__ySpeed >= 2:
-		# 		self.__ySpeed = 2
-		# else:
-		# 	self.__ySpeed = 0
+
+		# y axis
+		self.__ySpeed -= 9.8 * PIXEL_PER_METER * game_framework.frame_time
+		if self.__ySpeed > -Monster_TERMINAL_VELOCITY_PPS:
+			self.__ySpeed = -Monster_TERMINAL_VELOCITY_PPS
+
 		self.__frame = (self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
 
 	def get_position(self):
@@ -64,6 +68,10 @@ class Monster:
 	def reverse(self):
 		self.__dir = not self.__dir
 		self.__x -= (1 - self.__dir * 2) * MONSTER_SPEED_X
+
+	def land(self, y_pos):
+		self.__ySpeed = 0
+		self.__y = y_pos + MONSTER_SIZE / 2 + ((self.__type == 0) * MONSTER_SIZE / 2)
 
 	@classmethod
 	def set_image(cls, monster_image):
