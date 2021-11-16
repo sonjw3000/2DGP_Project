@@ -31,5 +31,9 @@ class GameObjects:
 			for o in self.objects[i]:
 				yield o
 
+	# Tile : 0 // Coin, Item : 1 // Monster : 2 // Player : 3
+	def get_objects_from_layer(self, layer_index):
+		return self.objects[layer_index]
+
 	def load_objects_from_file(self, file_route):
 		pass
