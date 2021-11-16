@@ -5,7 +5,7 @@ from Bullet import *
 # import keyboard
 import Player
 import Monster
-import main
+import main_this_is_trash
 
 # 800, 600
 
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 	# Init game Settings
 	open_canvas()
 
-	game = main.GameRunner()
+	game = main_this_is_trash.GameRunner()
 
 	game.init_game()
 	game.tiles = TestMap

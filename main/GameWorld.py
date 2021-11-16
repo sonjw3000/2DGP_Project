@@ -6,30 +6,30 @@
 # layer 3 : player
 # layer 4 : ui??
 
-class GameObject:
-	objects = [[], [], [], [], []]
+class GameObjects:
+	def __init__(self):
+		self.objects = [[], [], [], [], []]
 
-	@classmethod
-	def add_object(obj, layer):
-		objects[layer].append(obj)
+	def add_object(self, obj, layer):
+		self.objects[layer].append(obj)
 
-	@classmethod
-	def remove_object(o):
-		for i in range(len(objects)):
-			if o in objects[i]:
-				objects[i].remove(o)
+	def remove_object(self, o):
+		for i in range(len(self.objects)):
+			if o in self.objects[i]:
+				self.objects[i].remove(o)
 				del o
 				break
 
-	@classmethod
-	def clear():
-		for o in all_objects():
+	def clear(self):
+		for o in self.all_objects():
 			del o
-		for l in objects:
+		for l in self.objects:
 			l.clear()
 
-	@classmethod
-	def all_objects():
-		for i in range(len(objects)):
-			for o in objects[i]:
+	def all_objects(self):
+		for i in range(len(self.objects)):
+			for o in self.objects[i]:
 				yield o
+
+	def load_objects_from_file(self, file_route):
+		pass
