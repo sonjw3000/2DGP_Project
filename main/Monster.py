@@ -9,6 +9,10 @@ class Monster:
 
 	def __init__(self, x, y, mon_type, b_dir):
 
+		if Monster.__image == None:
+			img = load_image("./resource/monsters.png")
+			Monster.set_image(img)
+
 		self.__x, self.__y = x, y
 		self.__dir = b_dir
 

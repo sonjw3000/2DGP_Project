@@ -169,7 +169,7 @@ class Player:
 	def is_jumping(self):
 		return self.__bJump or self.__bFalling
 
-	def move(self, land=0, delta_time=1):
+	def update(self, land=0, delta_time=1):
 		self.__bef_x = self.__x
 		self.__bef_y = self.__y
 
