@@ -178,7 +178,7 @@ class GameRunner:
 			# collide with bullets
 			for bullet in self.bullets:
 				bul_rect = bullet.get_position()
-				if self.rect_col_check(bul_rect, (l, b, r, t)):
+				if rect_col_check(bul_rect, (l, b, r, t)):
 					self.monsters.remove(monster)
 					continue
 
