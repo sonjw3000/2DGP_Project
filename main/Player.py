@@ -2,8 +2,30 @@ from pico2d import *
 from keyboard import is_pressed
 # from Tile import TILE_SIZE
 import Tile
+import game_framework
 
 # import keyboard
+
+# Player Run Speed
+# Player Speed 		: 20km/h
+# Player Size 		: 160 * 80
+# Player Pixel Size	: (TileSize * 2) * TileSize
+PIXEL_PER_METER = (10 / 0.2)  # 10 pixel 20 cm
+PLAYER_SPEED_KMPH = 20.0  # Km / Hour
+PLAYER_SPEED_MPM = (PLAYER_SPEED_KMPH * 1000.0 / 60.0)
+PLAYER_SPEED_MPS = (PLAYER_SPEED_MPM / 60.0)
+PLAYER_SPEED_PPS = (PLAYER_SPEED_MPS * PIXEL_PER_METER)
+
+PLAYER_TERMINAL_VELOCITY_KMPH = 80.0  # Km / Hour
+PLAYER_TERMINAL_VELOCITY_MPM = (PLAYER_TERMINAL_VELOCITY_KMPH * 1000.0 / 60.0)
+PLAYER_TERMINAL_VELOCITY_MPS = (PLAYER_TERMINAL_VELOCITY_MPM / 60.0)
+PLAYER_TERMINAL_VELOCITY_PPS = (PLAYER_TERMINAL_VELOCITY_MPS * PIXEL_PER_METER)
+
+# Running Action Speed
+# 초당 50번 (0.02에 한번)
+TIME_PER_ACTION = 0.02
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 4
 
 PLAYER_SPEED_X = 0.3
 PLAYER_MAX_SPEED_X = 2.5
@@ -46,6 +68,8 @@ class Player:
 		self.__speed_x = 0
 		self.__speed_y = 0
 
+		self.__dir = 0
+
 		self.__yMove = 0
 
 	# Constructor End
@@ -66,6 +90,7 @@ class Player:
 		return True
 
 	def input(self):
+		self.__dir = 0
 		bKeyPressed = False
 		self.__bRunning = False
 
@@ -75,10 +100,7 @@ class Player:
 			self.__bRunning = True
 
 			# Speed Setting
-			if self.__speed_x > -PLAYER_MAX_SPEED_X + (self.__bSitDown * PLAYER_MAX_SPEED_X / 2):
-				self.__speed_x -= PLAYER_SPEED_X
-			else:
-				self.__speed_x = -PLAYER_MAX_SPEED_X + (self.__bSitDown * PLAYER_MAX_SPEED_X / 2)
+			self.__dir -= 1
 
 			# Flag Setting
 			if self.__speed_x > 0:
@@ -98,10 +120,7 @@ class Player:
 			self.__bRunning = True
 
 			# Speed Setting
-			if self.__speed_x < PLAYER_MAX_SPEED_X - (self.__bSitDown * PLAYER_MAX_SPEED_X / 2):
-				self.__speed_x += PLAYER_SPEED_X
-			else:
-				self.__speed_x = PLAYER_MAX_SPEED_X - (self.__bSitDown * PLAYER_MAX_SPEED_X / 2)
+			self.__dir += 1
 
 			# Flag Setting
 			if self.__speed_x < 0:
@@ -126,15 +145,13 @@ class Player:
 			# jump gogo
 			bKeyPressed = True
 			if not self.__bFalling:
-				self.__speed_y = PLAYER_MAX_SPEED_Y
+				self.__speed_y = PLAYER_TERMINAL_VELOCITY_PPS
 				self.__bJump = True
 				self.__yMove += self.__speed_y
 			if self.__yMove >= PLAYER_MAX_JUMP_HEIGHT:
 				self.__bFalling = True
 		else:
 			self.__bFalling = True
-		if self.__bFalling:
-			self.__speed_y -= PLAYER_SPEED_Y
 
 		# Slow Down
 		if self.__speed_x > 0:
@@ -169,23 +186,49 @@ class Player:
 	def is_jumping(self):
 		return self.__bJump or self.__bFalling
 
-	def update(self, land=0, delta_time=1):
+	def update(self):
 		self.__bef_x = self.__x
 		self.__bef_y = self.__y
 
-		self.__x += self.__speed_x * delta_time
-		self.__y += self.__speed_y * delta_time
+		# x axis
+		# accelerate, breaking
+		if self.__dir > 0:
+			self.__speed_x += PLAYER_SPEED_PPS * game_framework.frame_time * 2
+			if self.__speed_x >= PLAYER_SPEED_PPS:
+				self.__speed_x = PLAYER_SPEED_PPS
+		elif self.__dir < 0:
+			self.__speed_x -= PLAYER_SPEED_PPS * game_framework.frame_time * 2
+			if self.__speed_x <= -PLAYER_SPEED_PPS:
+				self.__speed_x = -PLAYER_SPEED_PPS
+		else:
+			if self.__speed_x > 0:
+				self.__speed_x -= PLAYER_SPEED_PPS * game_framework.frame_time * 2
+				if self.__speed_x < 0:
+					self.__speed_x = 0
+			elif self.__speed_x < 0:
+				self.__speed_x += PLAYER_SPEED_PPS * game_framework.frame_time * 2
+				if self.__speed_x > 0:
+					self.__speed_x = 0
+		self.__x += self.__speed_x * game_framework.frame_time
 
-		# It's falling and land
-		if (self.__speed_y < 0 and self.__bFalling) and land:
-			self.__y = land + Tile.TILE_SIZE
-			self.__speed_y = 0
-			self.__bJump = False
-			self.__bFalling = False
-			self.__yMove = 0
+		# y axis
+		self.__speed_y -= 9.8 * PIXEL_PER_METER * game_framework.frame_time
+		if self.__speed_y > -PLAYER_TERMINAL_VELOCITY_PPS:
+			self.__speed_y = -PLAYER_TERMINAL_VELOCITY_PPS
 
-		if not land and not self.__bJump:
-			self.__bFalling = True
+		# self.__y += self.__speed_y * game_framework.frame_time
+
+		# # It's falling and land
+		# if (self.__speed_y < 0 and self.__bFalling) and land:
+		# 	self.__y = land + Tile.TILE_SIZE
+		# 	self.__speed_y = 0
+		# 	self.__bJump = False
+		# 	self.__bFalling = False
+		# 	self.__yMove = 0
+		#
+		# if not land and not self.__bJump:
+		# 	self.__bFalling = True
+		pass
 
 	def draw(self):
 		# print(self.__speed_x)
@@ -222,9 +265,12 @@ class Player:
 			self.__imgSprite = 2
 			bFrame = True
 
+		draw_rectangle(*(self.get_position()))
+
 		# Set Frame
 		if bFrame:
-			self.__frame = (self.__frame + 1) % 40
+			# self.__frame = (self.__frame + 1) % 40
+			self.__frame = (self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
 		else:
 			self.__frame = 0
 

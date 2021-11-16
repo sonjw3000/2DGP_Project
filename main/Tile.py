@@ -1,5 +1,6 @@
 from pico2d import *
 import Player
+import game_framework
 
 # Tile is square
 TILE_SIZE = 40
@@ -10,10 +11,19 @@ TILE_SIZE = 40
 # Empty_Sky = 56
 # Item Block : 64
 
+# 1 cycle : 1.6 sec
+# 1 cycle = 4 frame
+# 0.4sec + 1 frame
+# ? Block
+TIME_PER_ACTION = 0.4
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 4
+
+
 
 class Tile:
 	# __imageSpriteOverWorld = load_image('./resource/tiles/overworld.png')
-	__imageSpriteOverWorld = None
+	__imageSprite = None
 
 	# right bottom == (0, 0)
 	def __init__(self, x, y, collide, breakable, tile_number, item_num=0):
@@ -65,7 +75,8 @@ class Tile:
 	def update(self, collide=False):
 		# if col? then do sth
 		if self.__type == 64 and not self.__bBroken:  # It's Item Box
-			self.__frame = (self.__frame + 1) % 40
+			self.__frame = (self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
+			# self.__frame = (self.__frame + 1) % 40
 
 		if self.__bBreaking_Animation:
 			# Blocks go up
@@ -93,27 +104,29 @@ class Tile:
 
 	# type 0 : over world, 1 : underground
 	def draw(self):
+		draw_rectangle(*(self.get_position()))
+
 		if self.__bBreaking_Animation:
-			self.__imageSpriteOverWorld.clip_draw(
+			self.__imageSprite.clip_draw(
 				1 + (56 % 16) * 17,
 				1 + (56 // 16) * 17,
 				16, 16, self.__x, self.__y, TILE_SIZE, TILE_SIZE)
 		else:
-			self.__imageSpriteOverWorld.clip_draw(
-				1 + (self.__type % 16) * 17 + (self.__frame // 10) * 17,
+			self.__imageSprite.clip_draw(
+				1 + (self.__type % 16) * 17 + (int(self.__frame)) * 17,
 				1 + (self.__type // 16) * 17,
 				16, 16, self.__x, self.__y, TILE_SIZE, TILE_SIZE)
 
 	def draw_breaking(self):
 		if self.__bBreaking_Animation:
-			self.__imageSpriteOverWorld.clip_draw(
-				1 + (self.__type % 16) * 17 + (self.__frame // 10) * 17,
+			self.__imageSprite.clip_draw(
+				1 + (self.__type % 16) * 17 + (int(self.__frame)) * 17,
 				1 + (self.__type // 16) * 17,
 				16, 16, self.__x, self.__y + self.__offsetY, TILE_SIZE, TILE_SIZE)
 
 	@classmethod
 	def set_image(cls, tileImage):
-		cls.__imageSpriteOverWorld = tileImage
+		cls.__imageSprite = tileImage
 
 
 # Class End
