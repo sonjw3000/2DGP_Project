@@ -1,5 +1,7 @@
 import time
 
+w, h = 800, 600
+
 gameLoop = True
 frame_time = 0.0
 stack = None

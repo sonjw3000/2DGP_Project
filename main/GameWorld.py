@@ -13,6 +13,9 @@ class GameObjects:
 	def add_object(self, obj, layer):
 		self.objects[layer].append(obj)
 
+	def add_objects(self, new_list, layer):
+		self.objects[layer] += new_list
+
 	def remove_object(self, o):
 		for i in range(len(self.objects)):
 			if o in self.objects[i]:

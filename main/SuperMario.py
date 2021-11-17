@@ -3,6 +3,6 @@ import game_framework
 
 import main_state
 
-open_canvas(800, 600)
+open_canvas(game_framework.w, game_framework.h)
 game_framework.run(main_state)
 close_canvas()

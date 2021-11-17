@@ -2,7 +2,7 @@ from pico2d import *
 import Player
 import Item
 import game_framework
-
+import main_state
 
 # Tile is square
 TILE_SIZE = 40
@@ -41,10 +41,13 @@ class Tile:
 		self.__bBroken = False
 
 		self.__frame = 0
-
-		# Mushroom : 1
-		# Flower : 2
-		# Star : 3
+		# in items in here (in Item, -1)
+		# 0 : None
+		# 1 : flower
+		# 2 : star
+		# 3 : coin
+		# 4 : mushroom(red, size + 1)
+		# 5 : mushroom(green, life + 1)
 
 		self.__item = item_num
 
@@ -73,10 +76,12 @@ class Tile:
 			self.__bCollideOn = False
 			self.__bBreaking_Animation = True
 
-	def update(self, collide=False):
+	def update(self):
 		# if col? then do sth
 		if self.__type == 64 and not self.__bBroken:  # It's Item Box
-			self.__frame = (self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
+			self.__frame = \
+				(self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % \
+				FRAMES_PER_ACTION
 			# self.__frame = (self.__frame + 1) % 40
 
 		if self.__bBreaking_Animation:
@@ -90,8 +95,27 @@ class Tile:
 				if self.__item:
 					self.__type = 64
 					self.__bBroken = True
-					self.__frame = 40
+					self.__frame = 4
+
 					# Make Item Here
+					# if player is small, make mushroom
+					item_type = self.__item
+					if item_type == 1 or item_type == 4:
+						if main_state.gamePlayer.get_size() >= 1:
+							# flower
+							item_type = 1
+						else:
+							# mushroom
+							item_type = 4
+
+					# coin earned, score + 100
+					if item_type == 3:
+						main_state.game_score += 100
+						main_state.game_coin += 1
+
+					new_item = Item.Item(self.__x, self.__y + TILE_SIZE, item_type - 1)
+					main_state.game_objects.add_object(new_item, 1)
+					main_state.items.append(new_item)
 					pass
 				elif self.__type == 33:
 					self.__type = 56
@@ -110,6 +134,10 @@ class Tile:
 				1 + (56 % 16) * 17,
 				1 + (56 // 16) * 17,
 				16, 16, self.__x, self.__y, TILE_SIZE, TILE_SIZE)
+			self.__imageSprite.clip_draw(
+				1 + (self.__type % 16) * 17 + (int(self.__frame)) * 17,
+				1 + (self.__type // 16) * 17,
+				16, 16, self.__x, self.__y + self.__offsetY, TILE_SIZE, TILE_SIZE)
 		else:
 			self.__imageSprite.clip_draw(
 				1 + (self.__type % 16) * 17 + (int(self.__frame)) * 17,

@@ -6,6 +6,8 @@ import Bullet
 import Tile
 import game_framework
 
+import copy
+
 # for test
 import TestMap
 
@@ -14,11 +16,16 @@ monsters = None
 bullets = None
 tiles = None
 items = None
+font = None
 
 game_objects = GameObjects()
 
 current_stage = 0
+
+# game var
 player_life = 5
+game_score = 0
+game_coin = 0
 
 
 def test():
@@ -27,23 +34,21 @@ def test():
 
 	global tiles
 	tiles = []
-	for i in range(15):
-		tiles.append([])
-		for j in range(20):
-			game_objects.add_object(TestMap.TestMap[i][j], 0)
-			tiles[i].append(TestMap.TestMap[i][j])
+	tiles = copy.deepcopy(TestMap.TestMapTile)
+
+	for i in range(len(tiles) - 1, 0 - 1, -1):
+		game_objects.add_objects(tiles[i][::-1], 0)
 
 	# Monsters
 	global monsters
 	monsters = []
+	monsters = copy.deepcopy(TestMap.Monster)
 
-	for i in TestMap.Monster:
-		game_objects.add_object(i, 2)
-		monsters.append(i)
+	game_objects.add_objects(monsters, 2)
 
 	# Player
 	global gamePlayer
-	gamePlayer = Player.Player(50, 80)
+	gamePlayer = Player.Player(50, 80, 0)
 	game_objects.add_object(gamePlayer, 3)
 
 	# item
@@ -60,8 +65,11 @@ def test():
 	monsterImg = load_image("./resource/monsters.png")
 	Monster.Monster.set_image(monsterImg)
 
+	global font
+	font = load_font('./resource/ENCR10B.TTF', 16)
 
-def collide_check(a, b):
+
+def check_collide(a, b):
 	left_a, bottom_a, right_a, top_a = a.get_position()
 	left_b, bottom_b, right_b, top_b = b.get_position()
 	if left_a > right_b: return False
@@ -72,7 +80,7 @@ def collide_check(a, b):
 
 
 # returns x, y collide, if out of range, return None
-def tile_collide_check(left, bottom, right, top):
+def check_tile_collide(left, bottom, right, top):
 	left_index = int((left + 1) // Tile.TILE_SIZE)
 	bottom_index = int((bottom - 1) // Tile.TILE_SIZE)
 	right_index = int((right - 1) // Tile.TILE_SIZE)
@@ -82,7 +90,7 @@ def tile_collide_check(left, bottom, right, top):
 	yCol = False
 
 	if bottom_index < 0:
-		# Player dead or Bullet dead
+		# something dead
 		return None
 
 	# x collide check here
@@ -103,14 +111,14 @@ def tile_collide_check(left, bottom, right, top):
 	if tiles[bottom_index][left_index].get_is_collidable() or \
 			tiles[bottom_index][right_index].get_is_collidable():
 		yCol = -1
-	elif (tiles[top_index][left_index].get_is_collidable(True) or \
-		  tiles[top_index][right_index].get_is_collidable(True)):
+	elif (tiles[top_index][left_index].get_is_collidable() or \
+		  tiles[top_index][right_index].get_is_collidable()):
 		yCol = 1
 
 	return xCol, yCol * (bottom_index + 1)
 
 
-def tile_collide_check_x(left, bottom, right, top):
+def check_tile_collide_x(left, bottom, right, top):
 	left_index = int((left + 1) // Tile.TILE_SIZE)
 	bottom_index = int((bottom - 1) // Tile.TILE_SIZE)
 	right_index = int((right - 1) // Tile.TILE_SIZE)
@@ -139,7 +147,7 @@ def tile_collide_check_x(left, bottom, right, top):
 	return xCol
 
 
-def tile_collide_check_y(left, bottom, right, top):
+def check_tile_collide_y(left, bottom, right, top):
 	left_index = int((left + 1) // Tile.TILE_SIZE)
 	bottom_index = int((bottom - 1) // Tile.TILE_SIZE)
 	right_index = int((right - 1) // Tile.TILE_SIZE)
@@ -155,7 +163,7 @@ def tile_collide_check_y(left, bottom, right, top):
 	if tiles[bottom_index][left_index].get_is_collidable() or \
 			tiles[bottom_index][right_index].get_is_collidable():
 		yCol = -1
-	elif (tiles[top_index][left_index].get_is_collidable(True) or \
+	elif (tiles[top_index][left_index].get_is_collidable() or \
 		  tiles[top_index][right_index].get_is_collidable(True)):
 		yCol = 1
 
@@ -171,6 +179,13 @@ def enter():
 	bullets = []
 	# game_objects.load_objects_from_file(str)
 	test()
+
+
+def restart():
+	global current_stage
+	current_stage -= 1
+	game_objects.clear()
+	enter()
 
 
 def exit():
@@ -189,22 +204,32 @@ def handle_events():
 		elif event.type == SDL_KEYDOWN:
 			if event.key == SDLK_ESCAPE:
 				game_framework.exit_program()
+			elif event.key == SDLK_MINUS:
+				restart()
+			elif event.key == SDLK_F1:
+				gamePlayer.set_size(0)
+			elif event.key == SDLK_F2:
+				gamePlayer.set_size(1)
+			elif event.key == SDLK_F3:
+				gamePlayer.set_size(2)
 
 
 def update():
+	global game_score, player_life, game_coin
+
 	# move everything
 	for objs in game_objects.all_objects():
 		objs.update()
 
 	# player-tile collide
 	# check x col
-	state = tile_collide_check_x(*(gamePlayer.get_position()))
+	state = check_tile_collide_x(*(gamePlayer.get_position()))
 	if state is not None:
 		x_collide = state
 		if x_collide:
 			gamePlayer.go_x_back()
 	# check y col
-	state = tile_collide_check_y(*(gamePlayer.get_position()))
+	state = check_tile_collide_y(*(gamePlayer.get_position()))
 	if state is not None:
 		y_collide = state
 		if y_collide:
@@ -225,23 +250,20 @@ def update():
 
 	# bullets
 	for bullet in bullets:
-		state = tile_collide_check_x(*(bullet.get_position()))
+		state = check_tile_collide(*(bullet.get_position()))
 		if state is not None:
-			x_collide = state
+			x_collide, y_collide = state
 			if x_collide:
 				game_objects.remove_object(bullet)
 				bullets.remove(bullet)
 				continue
-
-		state = tile_collide_check_y(*(bullet.get_position()))
-		if state is not None:
-			y_collide = state
 			if y_collide:
 				bullet.hit_floor()
 		else:
 			game_objects.remove_object(bullet)
 			bullets.remove(bullet)
 			continue
+
 		# bullet timer
 		if not bullet.is_still_alive():
 			game_objects.remove_object(bullet)
@@ -250,7 +272,7 @@ def update():
 	# monsters
 	for monster in monsters:
 		# player-monster collide
-		if collide_check(monster, gamePlayer) and not gamePlayer.is_invincible():
+		if check_collide(monster, gamePlayer) and not gamePlayer.is_invincible():
 			if not gamePlayer.size_down():
 				# reload cur stage
 				global player_life
@@ -259,18 +281,16 @@ def update():
 					# goto start state
 					# exit cur state
 					#
+					game_framework.exit_program()
 					return
 				else:
 					# reload cur state
-					global current_stage
-					current_stage -= 1
-					exit()
-					enter()
+					restart()
 					return
 
 		# monster-tile collide
-		state = tile_collide_check(*(monster.get_position()))
-		if state != None:
+		state = check_tile_collide(*(monster.get_position()))
+		if state is not None:
 			x_collide, y_collide = state
 			if x_collide:
 				monster.reverse()
@@ -281,12 +301,59 @@ def update():
 
 		# monster-bullet collide
 		for bullet in bullets:
-			if collide_check(bullet, monster):
+			if check_collide(bullet, monster):
 				game_objects.remove_object(bullet)
 				game_objects.remove_object(monster)
 				bullets.remove(bullet)
 				monsters.remove(monster)
+				game_score += 100
 				continue
+
+	# items
+	for item in items:
+		# kill lifetime end
+		if not item.is_still_alive():
+			game_objects.remove_object(item)
+			items.remove(item)
+			continue
+
+		item_type = item.get_type()
+
+		# check collide with player
+		if check_collide(item, gamePlayer):
+			if item_type == 0 or item_type == 3:
+				# flower, mushroom(red)
+				gamePlayer.set_size(1 + (item_type == 0))
+				game_score += 500 + (item_type == 0) * 500
+			elif item_type == 4:
+				# green mushroom
+				game_score += 500
+				player_life += 1
+			else:
+				# star
+				pass
+			game_objects.remove_object(item)
+			items.remove(item)
+			continue
+
+		# don't have to check col_tile
+		if item_type == 2 or item_type == 0:
+			continue
+
+		# collide check if it is moving item
+		state = check_tile_collide(*(item.get_position()))
+		if state is not None:
+			x_collide, y_collide = state
+			if x_collide:
+				item.reverse()
+			if y_collide:
+				item.land(y_collide * Tile.TILE_SIZE * -1)
+		else:
+			print("item out")
+
+	if game_coin >= 100:
+		player_life += 1
+		game_coin -= 100
 
 
 def draw():
@@ -294,10 +361,19 @@ def draw():
 	for objs in game_objects.all_objects():
 		objs.draw()
 
-	for line in tiles:
-		for t in line:
-			t.draw_breaking()
+	# for line in tiles:
+	# 	for t in line:
+	# 		t.draw_breaking()
 
+	font.draw(20, game_framework.h - 20,
+			  'Score :' + str(game_score), (0, 0, 0))
+	font.draw((game_framework.w - 80) / 2, game_framework.h - 20,
+			  'Coin :' + str(game_coin), (0, 0, 0))
+	font.draw(game_framework.w - 200, game_framework.h - 20,
+			  'Stage :' + str(current_stage), (0, 0, 0))
+	font.draw(game_framework.w - 100, game_framework.h - 20,
+			  'Life :' + str(player_life), (0, 0, 0))
+	# Life: ' + str(player_life)
 	update_canvas()
 
 

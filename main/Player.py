@@ -252,9 +252,6 @@ class Player:
 
 		self.__y += self.__speed_y * game_framework.frame_time
 
-
-
-
 	def draw(self):
 		# print(self.__speed_x)
 		# img start pos (0,1)
@@ -298,7 +295,10 @@ class Player:
 		self.__characterImageSprite.clip_draw(
 			(self.__imgSprite + (bFrame * int(self.__frame))) * 17 + 153 * self.__bLookRight,
 			(2 - self.__size) * 33,
-			16, 32, self.__x, self.__y, Tile.TILE_SIZE, Tile.TILE_SIZE + (Tile.TILE_SIZE * (not self.__size == 0)))
+			16, 32, self.__x, self.__y - ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE) / 2,
+			Tile.TILE_SIZE, Tile.TILE_SIZE + Tile.TILE_SIZE - ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE) / 2)
+
+
 
 		draw_rectangle(*(self.get_position()))
 
@@ -308,6 +308,12 @@ class Player:
 	def get_dir(self):
 		return self.__bLookRight
 
+	def get_size(self):
+		return self.__size
+
+	def set_size(self, size):
+		if self.__size < size:
+			self.__size = size
 	# Test Funcs
 	# def sprite_up(self):
 	# 	self.__imgSprite += 1
