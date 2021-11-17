@@ -127,29 +127,29 @@ class Tile:
 
 	# type 0 : over world, 1 : underground
 	def draw(self):
-		draw_rectangle(*(self.get_position()))
+		# draw_rectangle(*(self.get_position()))
 
 		if self.__bBreaking_Animation:
 			self.__imageSprite.clip_draw(
 				1 + (56 % 16) * 17,
 				1 + (56 // 16) * 17,
-				16, 16, self.__x, self.__y, TILE_SIZE, TILE_SIZE)
+				16, 16, self.__x - main_state.screen_offset, self.__y, TILE_SIZE, TILE_SIZE)
 			self.__imageSprite.clip_draw(
 				1 + (self.__type % 16) * 17 + (int(self.__frame)) * 17,
 				1 + (self.__type // 16) * 17,
-				16, 16, self.__x, self.__y + self.__offsetY, TILE_SIZE, TILE_SIZE)
+				16, 16, self.__x - main_state.screen_offset, self.__y + self.__offsetY, TILE_SIZE, TILE_SIZE)
 		else:
 			self.__imageSprite.clip_draw(
 				1 + (self.__type % 16) * 17 + (int(self.__frame)) * 17,
 				1 + (self.__type // 16) * 17,
-				16, 16, self.__x, self.__y, TILE_SIZE, TILE_SIZE)
+				16, 16, self.__x - main_state.screen_offset, self.__y, TILE_SIZE, TILE_SIZE)
 
 	def draw_breaking(self):
 		if self.__bBreaking_Animation:
 			self.__imageSprite.clip_draw(
 				1 + (self.__type % 16) * 17 + (int(self.__frame)) * 17,
 				1 + (self.__type // 16) * 17,
-				16, 16, self.__x, self.__y + self.__offsetY, TILE_SIZE, TILE_SIZE)
+				16, 16, self.__x - main_state.screen_offset, self.__y + self.__offsetY, TILE_SIZE, TILE_SIZE)
 
 	@classmethod
 	def set_image(cls, tileImage):

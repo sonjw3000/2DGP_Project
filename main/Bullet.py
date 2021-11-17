@@ -1,5 +1,6 @@
 from pico2d import *
 import game_framework
+import main_state
 
 PIXEL_PER_METER = (10 / 0.2)  # 10 pixel 20 cm
 BULLET_SPEED_KMPH = 40.0  # Km / Hour
@@ -63,8 +64,9 @@ class Bullet:
 				self.__y + BULLET_SIZE / 2)
 
 	def draw(self):
-		draw_rectangle(*(self.get_position()))
-		self.__image.clip_draw(9 * (self.__frame // 10), 0, 9, 9, self.__x, self.__y, BULLET_SIZE, BULLET_SIZE)
+		# draw_rectangle(*(self.get_position()))
+		self.__image.clip_draw(9 * (self.__frame // 10), 0, 9, 9,
+							   self.__x - main_state.screen_offset, self.__y, BULLET_SIZE, BULLET_SIZE)
 		pass
 
 	@classmethod

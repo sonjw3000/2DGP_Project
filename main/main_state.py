@@ -26,7 +26,9 @@ current_stage = 0
 player_life = 5
 game_score = 0
 game_coin = 0
+game_time = 300
 
+screen_offset = 0
 
 def test():
 	global game_objects
@@ -171,10 +173,12 @@ def check_tile_collide_y(left, bottom, right, top):
 
 
 def enter():
-	global current_stage
+	global current_stage, game_time, screen_offset
 	current_stage += 1
+	screen_offset = 0
 	str = "어쨋든 스테이지 파일임_" + current_stage.__str__()
 
+	game_time = 300
 	global bullets
 	bullets = []
 	# game_objects.load_objects_from_file(str)
@@ -194,6 +198,7 @@ def exit():
 
 
 def handle_events():
+	global game_coin, player_life, game_time
 	gamePlayer.input()
 
 	game_events = get_events()
@@ -212,10 +217,16 @@ def handle_events():
 				gamePlayer.set_size(1)
 			elif event.key == SDLK_F3:
 				gamePlayer.set_size(2)
+			elif event.key == SDLK_p:
+				game_coin += 10
+			elif event.key == SDLK_m:
+				player_life -= 1
+			elif event.key == SDLK_t:
+				game_time = 5
 
 
 def update():
-	global game_score, player_life, game_coin
+	global game_score, player_life, game_coin, game_time, screen_offset
 
 	# move everything
 	for objs in game_objects.all_objects():
@@ -323,7 +334,10 @@ def update():
 		if check_collide(item, gamePlayer):
 			if item_type == 0 or item_type == 3:
 				# flower, mushroom(red)
-				gamePlayer.set_size(1 + (item_type == 0))
+				new_size = 1 + (item_type == 0)
+				if new_size < gamePlayer.get_size():
+					new_size = gamePlayer.get_size()
+				gamePlayer.set_size(new_size)
 				game_score += 500 + (item_type == 0) * 500
 			elif item_type == 4:
 				# green mushroom
@@ -354,6 +368,16 @@ def update():
 	if game_coin >= 100:
 		player_life += 1
 		game_coin -= 100
+	game_time -= game_framework.frame_time
+	if game_time <= 0:
+		player_life -= 1
+		restart()
+
+	# screen offset setting
+	screen_offset = clamp(0,
+				   gamePlayer.get_x() - game_framework.w / 2,
+				   len(tiles[0]) * Tile.TILE_SIZE - game_framework.w)
+
 
 
 def draw():
@@ -367,6 +391,8 @@ def draw():
 
 	font.draw(20, game_framework.h - 20,
 			  'Score :' + str(game_score), (0, 0, 0))
+	font.draw(120, game_framework.h - 20,
+			  'Time :' + str(int(game_time)), (0, 0, 0))
 	font.draw((game_framework.w - 80) / 2, game_framework.h - 20,
 			  'Coin :' + str(game_coin), (0, 0, 0))
 	font.draw(game_framework.w - 200, game_framework.h - 20,

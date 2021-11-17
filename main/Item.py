@@ -1,7 +1,7 @@
 from pico2d import *
 import Tile
 import game_framework
-
+import main_state
 # Tile.TILE_SIZE
 
 TIME_PER_ACTION = 0.4
@@ -77,11 +77,11 @@ class Item:
 				self.__y + Tile.TILE_SIZE / 2)
 
 	def draw(self):
-		draw_rectangle(*(self.get_position()))
+		# draw_rectangle(*(self.get_position()))
 
 		Item.__image.clip_draw(17 * int(self.__frame),
 							   17 * self.__type, 16, 16,
-							   self.__x, self.__y, ITEM_SIZE, ITEM_SIZE)
+							   self.__x - main_state.screen_offset, self.__y, ITEM_SIZE, ITEM_SIZE)
 
 	def get_type(self):
 		return self.__type

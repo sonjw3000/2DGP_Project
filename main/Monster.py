@@ -1,6 +1,6 @@
 from pico2d import *
 import game_framework
-
+import main_state
 MONSTER_SPEED_X = 1.5
 MONSTER_SIZE = 40
 
@@ -61,10 +61,10 @@ class Monster:
 				self.__y + MONSTER_SIZE / 2)
 
 	def draw(self):
-		draw_rectangle(*(self.get_position()))
+		# draw_rectangle(*(self.get_position()))
 
 		Monster.__image.clip_draw(17 * int(self.__frame), self.__type * 23, 16, 16 + ((self.__type == 0) * 7),
-								  self.__x, self.__y, MONSTER_SIZE,
+								  self.__x - main_state.screen_offset, self.__y, MONSTER_SIZE,
 								  MONSTER_SIZE + ((self.__type == 0) * MONSTER_SIZE / 2))
 
 	def reverse(self):
