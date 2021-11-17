@@ -1,6 +1,8 @@
 from pico2d import *
 import Player
+import Item
 import game_framework
+
 
 # Tile is square
 TILE_SIZE = 40
@@ -18,7 +20,6 @@ TILE_SIZE = 40
 TIME_PER_ACTION = 0.4
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 4
-
 
 
 class Tile:
@@ -80,9 +81,7 @@ class Tile:
 
 		if self.__bBreaking_Animation:
 			# Blocks go up
-			self.__offsetY += 5
-			if self.__type == 64 and self.__frame == 4:
-				self.__offsetY -= 10
+			self.__offsetY += game_framework.frame_time * 500
 
 			# if complete going up
 			if self.__offsetY >= TILE_SIZE // 2:

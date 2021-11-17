@@ -2,7 +2,10 @@ from pico2d import *
 from keyboard import is_pressed
 # from Tile import TILE_SIZE
 import Tile
+import Bullet
 import game_framework
+import GameWorld
+import main_state
 
 # import keyboard
 
@@ -27,10 +30,7 @@ TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 4
 
-PLAYER_SPEED_X = 0.3
-PLAYER_MAX_SPEED_X = 2.5
-
-PLAYER_MAX_JUMP_HEIGHT = 100
+PLAYER_MAX_JUMP_HEIGHT = 100  # pixel
 
 
 class Player:
@@ -46,6 +46,10 @@ class Player:
 		self.__bAttack = False
 		self.__bJump = False
 		self.__bFalling = False
+
+		# invincible control variables
+		self.__bInvincible = False
+		self.__invincible_timer = 0.0
 
 		# Set Pos
 		self.__x = x
@@ -103,15 +107,15 @@ class Player:
 			# Flag Setting
 			if self.__speed_x > 0:
 				# Breaking
-				self.__speed_x -= PLAYER_SPEED_X / 2
+				# self.__speed_x -= PLAYER_SPEED_X / 2
 				self.__bLookRight = False
 				self.__bBreak = True
 			else:
 				# Running
 				self.__bLookRight = False
 				if self.__bBreak:
-					if self.__speed_x <= -PLAYER_SPEED_X / 2:
-						self.__bBreak = False
+					# if self.__speed_x <= -PLAYER_SPEED_X / 2:
+					self.__bBreak = False
 
 		if is_pressed('right'):
 			bKeyPressed = True
@@ -123,15 +127,15 @@ class Player:
 			# Flag Setting
 			if self.__speed_x < 0:
 				# Breaking
-				self.__speed_x += PLAYER_SPEED_X / 2
+				# self.__speed_x += PLAYER_SPEED_X / 2
 				self.__bLookRight = True
 				self.__bBreak = True
 			else:
 				# Running
 				self.__bLookRight = True
 				if self.__bBreak:
-					if self.__speed_x >= PLAYER_SPEED_X / 2:
-						self.__bBreak = False
+					# if self.__speed_x >= PLAYER_SPEED_X / 2:
+					self.__bBreak = False
 
 		if is_pressed('down'):
 			bKeyPressed = True
@@ -153,12 +157,12 @@ class Player:
 
 		# Slow Down
 		if self.__speed_x > 0:
-			self.__speed_x -= PLAYER_SPEED_X / 3
+			# self.__speed_x -= PLAYER_SPEED_X / 3
 			if self.__speed_x < 0:
 				self.__speed_x = 0
 
 		elif self.__speed_x < 0:
-			self.__speed_x += PLAYER_SPEED_X / 3
+			# self.__speed_x += PLAYER_SPEED_X / 3
 			if self.__speed_x > 0:
 				self.__speed_x = 0
 
@@ -170,13 +174,26 @@ class Player:
 			if not self.__bAttack:
 				self.__bAttack = True
 				# Make bullet here
-				return self.__x + Tile.TILE_SIZE * (1 - 2 * (not self.__bLookRight)), self.__y
+				bullet = Bullet.Bullet(self.__x + Tile.TILE_SIZE * (1 - 2 * (not self.__bLookRight)), self.__y, self.__bLookRight)
+				main_state.bullets.append(bullet)
+				main_state.game_objects.add_object(bullet, 2)
 		else:
 			self.__bAttack = False
 
 		return None
 
 	# Input End
+	def is_invincible(self):
+		return self.__bInvincible
+
+	# returns is still alive
+	def size_down(self):
+		self.__size -= 1
+		if self.__size < 0:
+			return False
+		self.__bInvincible = True
+		self.__invincible_timer = 0.0
+		return True
 
 	def go_x_back(self):
 		self.__x = self.__bef_x
@@ -195,45 +212,48 @@ class Player:
 		self.__bef_x = self.__x
 		self.__bef_y = self.__y
 
+		if self.__bInvincible:
+			self.__invincible_timer += game_framework.frame_time
+			if self.__invincible_timer >= 5.0:
+				self.__bInvincible = False
+				self.__invincible_timer = 0.0
+
 		# x axis
 		# accelerate, breaking
+		dx = PLAYER_SPEED_PPS * game_framework.frame_time * 2
+
+		# break
+		if self.__bBreak:
+			dx *= 1.5
+
 		if self.__dir > 0:
-			self.__speed_x += PLAYER_SPEED_PPS * game_framework.frame_time * 2
+			self.__speed_x += dx
 			if self.__speed_x >= PLAYER_SPEED_PPS:
 				self.__speed_x = PLAYER_SPEED_PPS
 		elif self.__dir < 0:
-			self.__speed_x -= PLAYER_SPEED_PPS * game_framework.frame_time * 2
+			self.__speed_x -= dx
 			if self.__speed_x <= -PLAYER_SPEED_PPS:
 				self.__speed_x = -PLAYER_SPEED_PPS
 		else:
 			if self.__speed_x > 0:
-				self.__speed_x -= PLAYER_SPEED_PPS * game_framework.frame_time * 2
+				self.__speed_x -= dx
 				if self.__speed_x < 0:
 					self.__speed_x = 0
 			elif self.__speed_x < 0:
-				self.__speed_x += PLAYER_SPEED_PPS * game_framework.frame_time * 2
+				self.__speed_x += dx
 				if self.__speed_x > 0:
 					self.__speed_x = 0
 		self.__x += self.__speed_x * game_framework.frame_time
 
 		# y axis
-		self.__speed_y -= 9.8 * PIXEL_PER_METER * game_framework.frame_time
+		self.__speed_y -= 12 * PIXEL_PER_METER * game_framework.frame_time
 		if self.__speed_y < -PLAYER_TERMINAL_VELOCITY_PPS:
 			self.__speed_y = -PLAYER_TERMINAL_VELOCITY_PPS
 
 		self.__y += self.__speed_y * game_framework.frame_time
 
-		# # It's falling and land
-		# if (self.__speed_y < 0 and self.__bFalling) and land:
-		# 	self.__y = land + Tile.TILE_SIZE
-		# 	self.__speed_y = 0
-		# 	self.__bJump = False
-		# 	self.__bFalling = False
-		# 	self.__yMove = 0
-		#
-		# if not land and not self.__bJump:
-		# 	self.__bFalling = True
-		pass
+
+
 
 	def draw(self):
 		# print(self.__speed_x)
@@ -249,14 +269,12 @@ class Player:
 		# Sprite 7 : Breaking
 		# Sprite 8 : Sit Down
 
+		# frame update
 		# Set Img Sprite
-		# if self.__speed_x == 0 and not self.__bBreak:
-		# 	self.__imgSprite = 0
-
 		bFrame = False
 
-		# Image priority
-		# (attack) > jump > sit > break > running > idle
+		# Image sprite priority
+		# attack > jump > sit > break > running > idle
 		self.__imgSprite = 0
 		if self.__bAttack:
 			self.__imgSprite = 6
@@ -270,8 +288,6 @@ class Player:
 			self.__imgSprite = 2
 			bFrame = True
 
-		draw_rectangle(*(self.get_position()))
-
 		# Set Frame
 		if bFrame:
 			# self.__frame = (self.__frame + 1) % 40
@@ -284,6 +300,8 @@ class Player:
 			(2 - self.__size) * 33,
 			16, 32, self.__x, self.__y, Tile.TILE_SIZE, Tile.TILE_SIZE + (Tile.TILE_SIZE * (not self.__size == 0)))
 
+		draw_rectangle(*(self.get_position()))
+
 	# Draw End
 
 	# returns true when dir == right
@@ -291,17 +309,14 @@ class Player:
 		return self.__bLookRight
 
 	# Test Funcs
-	def sprite_up(self):
-		self.__imgSprite += 1
-
-	def sprite_down(self):
-		self.__imgSprite -= 1
-
-	def size_up(self):
-		self.__size += 1
-
-	def size_down(self):
-		self.__size -= 1
+	# def sprite_up(self):
+	# 	self.__imgSprite += 1
+	#
+	# def sprite_down(self):
+	# 	self.__imgSprite -= 1
+	#
+	# def size_up(self):
+	# 	self.__size += 1
 
 
 # Test Funcs End
@@ -334,7 +349,7 @@ if __name__ == "__main__":
 			elif event.key == SDLK_F4:
 				mario.size_down()
 
-		mario.move()
+		# mario.move()
 		delay(0.01)
 
 		clear_canvas()

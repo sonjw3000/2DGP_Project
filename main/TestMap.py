@@ -11,6 +11,7 @@ import main_this_is_trash
 
 # 맵툴을 만들자 제발
 # 가로 20, 세로 15
+
 TestMap = [
 	[Tile(TILE_SIZE * i, TILE_SIZE * 0, True, False, 0) for i in range(20)],
 	[Tile(TILE_SIZE * i, TILE_SIZE * 1, False + (i == 19 or i == 14), False, 56 - 56 * (i == 19 or i == 14)) for i in range(20)],
