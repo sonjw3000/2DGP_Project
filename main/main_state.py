@@ -77,25 +77,25 @@ def tile_collide_check(left, bottom, right, top):
 
 	# x collide check here
 	if left_index < 0:
-		xCol = True
+		xCol = -1
 		left_index = 0
 	elif right_index >= len(tiles[0]):
-		xCol = True
+		xCol = 1
 		right_index = len(tiles[0]) - 1
 	elif tiles[bottom_index + 1][left_index].get_is_collidable() or \
 			tiles[top_index][left_index].get_is_collidable():
-		xCol = True
+		xCol = -1
 	elif tiles[bottom_index + 1][right_index].get_is_collidable() or \
 			tiles[top_index][right_index].get_is_collidable():
-		xCol = True
+		xCol = 1
 
 	# y collide check here
 	if tiles[bottom_index][left_index].get_is_collidable() or \
 			tiles[bottom_index][right_index].get_is_collidable():
-		yCol = True
+		yCol = -1
 	elif (tiles[top_index][left_index].get_is_collidable(True) or \
 		  tiles[top_index][right_index].get_is_collidable(True)):
-		yCol = True
+		yCol = 1
 
 	return xCol, yCol * (bottom_index + 1)
 
@@ -134,7 +134,10 @@ def update():
 		if x_collide:
 			gamePlayer.go_x_back()
 		if y_collide:
-			gamePlayer.land(y_collide * Tile.TILE_SIZE)
+			if y_collide > 0:
+				gamePlayer.hit_ceil()
+			else:
+				gamePlayer.land(y_collide * Tile.TILE_SIZE * -1)
 	else:
 		print("fuck you")
 
@@ -145,11 +148,16 @@ def update():
 
 	# monster-tile collide
 	for monster in monsters:
-		x_collide, y_collide = tile_collide_check(*(monster.get_position()))
-		if x_collide:
-			monster.reverse()
-		if y_collide:
-			monster.land(y_collide * Tile.TILE_SIZE)
+		state =  tile_collide_check(*(monster.get_position()))
+		if state != None:
+			x_collide, y_collide = state
+			if x_collide:
+				monster.reverse()
+			if y_collide:
+				monster.land(y_collide * Tile.TILE_SIZE * -1)
+		else:
+			print("monster fuck you")
+
 
 
 def draw():

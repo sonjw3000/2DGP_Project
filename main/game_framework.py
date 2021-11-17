@@ -16,6 +16,7 @@ def run(start_state):
 	start_state.enter()
 
 	cur_time = time.time()
+
 	while gameLoop:
 		stack[-1].handle_events()
 		stack[-1].update()
@@ -23,3 +24,6 @@ def run(start_state):
 
 		frame_time = time.time() - cur_time
 		cur_time += frame_time
+
+		if frame_time >= 0.2:
+			frame_time = 0.2
