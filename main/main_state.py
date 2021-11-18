@@ -391,7 +391,7 @@ def draw():
 
 	font.draw(20, game_framework.h - 20,
 			  'Score :' + str(game_score), (0, 0, 0))
-	font.draw(120, game_framework.h - 20,
+	font.draw(150, game_framework.h - 20,
 			  'Time :' + str(int(game_time)), (0, 0, 0))
 	font.draw((game_framework.w - 80) / 2, game_framework.h - 20,
 			  'Coin :' + str(game_coin), (0, 0, 0))
