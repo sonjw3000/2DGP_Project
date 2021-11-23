@@ -182,6 +182,7 @@ def enter():
 	global bullets
 	bullets = []
 	# game_objects.load_objects_from_file(str)
+	# now using test map
 	test()
 
 
