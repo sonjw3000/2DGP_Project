@@ -211,18 +211,19 @@ def handle_events():
 				game_framework.exit_program()
 			elif event.key == SDLK_MINUS:
 				restart()
-			elif event.key == SDLK_F1:
-				gamePlayer.set_size(0)
-			elif event.key == SDLK_F2:
-				gamePlayer.set_size(1)
-			elif event.key == SDLK_F3:
-				gamePlayer.set_size(2)
-			elif event.key == SDLK_p:
-				game_coin += 10
-			elif event.key == SDLK_m:
-				player_life -= 1
-			elif event.key == SDLK_t:
-				game_time = 5
+		# cheat keys
+			# elif event.key == SDLK_F1:
+			# 	gamePlayer.set_size(0)
+			# elif event.key == SDLK_F2:
+			# 	gamePlayer.set_size(1)
+			# elif event.key == SDLK_F3:
+			# 	gamePlayer.set_size(2)
+			# elif event.key == SDLK_p:
+			# 	game_coin += 10
+			# elif event.key == SDLK_m:
+			# 	player_life -= 1
+			# elif event.key == SDLK_t:
+			# 	game_time = 5
 
 
 def update():
