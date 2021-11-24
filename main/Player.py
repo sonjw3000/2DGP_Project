@@ -33,6 +33,21 @@ FRAMES_PER_ACTION = 4
 PLAYER_MAX_JUMP_HEIGHT = 100  # pixel
 
 
+class MovingState:
+	# normal state
+	pass
+
+
+class DeadState:
+	# boy's y speed += 40 and show dead
+	pass
+
+
+class EndState:
+	# get down to the floor and move right 3 tiles
+	pass
+
+
 class Player:
 	def __init__(self, x=8, y=16, size=2):
 		# Init Image Sprite
@@ -174,7 +189,8 @@ class Player:
 			if not self.__bAttack:
 				self.__bAttack = True
 				# Make bullet here
-				bullet = Bullet.Bullet(self.__x + Tile.TILE_SIZE * (1 - 2 * (not self.__bLookRight)), self.__y, self.__bLookRight)
+				bullet = Bullet.Bullet(self.__x + Tile.TILE_SIZE * (1 - 2 * (not self.__bLookRight)), self.__y,
+									   self.__bLookRight)
 				main_state.bullets.append(bullet)
 				main_state.game_objects.add_object(bullet, 2)
 		else:
@@ -288,7 +304,8 @@ class Player:
 		# Set Frame
 		if bFrame:
 			# self.__frame = (self.__frame + 1) % 40
-			self.__frame = (self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
+			self.__frame = (
+									   self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
 		else:
 			self.__frame = 0
 
@@ -296,11 +313,10 @@ class Player:
 			(self.__imgSprite + (bFrame * int(self.__frame))) * 17 + 153 * self.__bLookRight,
 			(2 - self.__size) * 33,
 			16, 32, self.__x - main_state.screen_offset, self.__y,
-			Tile.TILE_SIZE, Tile.TILE_SIZE + Tile.TILE_SIZE - ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE) / 2)
+			Tile.TILE_SIZE,
+			Tile.TILE_SIZE + Tile.TILE_SIZE - ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE) / 2)
 
-
-
-		# draw_rectangle(*(self.get_position()))
+	# draw_rectangle(*(self.get_position()))
 
 	# Draw End
 
@@ -316,15 +332,15 @@ class Player:
 
 	def set_size(self, size):
 		self.__size = size
-	# Test Funcs
-	# def sprite_up(self):
-	# 	self.__imgSprite += 1
-	#
-	# def sprite_down(self):
-	# 	self.__imgSprite -= 1
-	#
-	# def size_up(self):
-	# 	self.__size += 1
+# Test Funcs
+# def sprite_up(self):
+# 	self.__imgSprite += 1
+#
+# def sprite_down(self):
+# 	self.__imgSprite -= 1
+#
+# def size_up(self):
+# 	self.__size += 1
 
 
 # Test Funcs End
