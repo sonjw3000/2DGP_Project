@@ -38,6 +38,10 @@ class MovingState:
 	pass
 
 
+class HitState:
+	pass
+
+
 class DeadState:
 	# boy's y speed += 40 and show dead
 	pass
