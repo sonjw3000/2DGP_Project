@@ -7,38 +7,55 @@ import pickle
 # layer 3 : player
 # layer 4 : ui??
 
-class GameObjects:
-	def __init__(self):
-		self.objects = [[], [], [], [], []]
+objects = [[], [], [], [], []]
 
-	def add_object(self, obj, layer):
-		self.objects[layer].append(obj)
 
-	def add_objects(self, new_list, layer):
-		self.objects[layer] += new_list
+def add_object(obj, layer):
+	objects[layer].append(obj)
 
-	def remove_object(self, o):
-		for i in range(len(self.objects)):
-			if o in self.objects[i]:
-				self.objects[i].remove(o)
-				del o
-				break
 
-	def clear(self):
-		for o in self.all_objects():
+def add_objects(new_list, layer):
+	objects[layer] += new_list
+
+
+def remove_object(o):
+	for i in range(len(objects)):
+		if o in objects[i]:
+			objects[i].remove(o)
 			del o
-		for l in self.objects:
-			l.clear()
+			break
 
-	def all_objects(self):
-		for i in range(len(self.objects)):
-			for o in self.objects[i]:
-				yield o
 
-	# Tile : 0 // Coin, Item : 1 // Monster : 2 // Player : 3
-	def get_objects_from_layer(self, layer_index):
-		return self.objects[layer_index]
+def clear():
+	for o in all_objects():
+		del o
+	for l in objects:
+		l.clear()
 
-	def load_objects_from_file(self, file_route):
 
-		pass
+def all_objects():
+	for i in range(len(objects)):
+		for o in objects[i]:
+			yield o
+
+
+# Tile : 0 // Coin, Item : 1 // Monster : 2 // Player : 3
+def get_objects_from_layer(layer_index):
+	return objects[layer_index]
+
+
+def load_objects_from_file(file_route):
+	pass
+
+
+def save():
+	with open('game.sav', 'wb') as f:
+		pickle.dump(objects, f)
+
+	pass
+
+
+def load():
+	global objects
+	with open('game.sav', 'rb') as f:
+		objects = pickle.load(f)

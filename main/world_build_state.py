@@ -5,14 +5,12 @@ import os
 
 from pico2d import *
 import game_framework
-import GameWorld as game_world
-
+import GameWorld
 import main_state
-
 import server
-
-from Tile import Tile
-from Monster import Monster
+import Player
+import Tile
+import Monster
 
 
 boy = None
@@ -39,25 +37,24 @@ def resume():
     pass
 
 
-
-
+# make new game
 def create_new_world():
-    server.boy = Boy()
-    game_world.add_object(server.boy, 1)
+    server.gamePlayer = Player.Player(50, 80, 0)
+    GameWorld.add_object(server.gamePlayer, 1)
 
-    # fill here
+    # new stage0 tile
     with open("zombie_data.json", 'r') as f:
         zombie_data_list = json.load(f)
 
+    # new stage0 monster
     for data in zombie_data_list:
         zombie = Zombie(data['name'], data['x'], data['y'], data['size'])
-        game_world.add_object(zombie, 1)
+        GameWorld.add_object(zombie, 1)
 
 
-
+# load last game
 def load_saved_world():
-    # fill here
-    game_world.load()
+    GameWorld.load()
 
     for o in game_world.all_objects():
         if isinstance(o, Boy):

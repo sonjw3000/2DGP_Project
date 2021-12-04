@@ -1,10 +1,10 @@
-from GameWorld import *
 from pico2d import *
 import Player
 import Monster
 import Bullet
 import Tile
 import game_framework
+import GameWorld
 import copy
 
 import server
@@ -13,8 +13,6 @@ import server
 import TestMap
 
 font = None
-
-game_objects = GameObjects()
 
 current_stage = 0
 
@@ -27,26 +25,25 @@ game_time = 300
 screen_offset = 0
 
 def test():
-	global game_objects
 	# Tiles
-
 
 	server.tiles = []
 	for lists in TestMap.TestMapTile:
 		server.tiles.append(lists)
 
 	for i in range(len(server.tiles) - 1, 0 - 1, -1):
-		game_objects.add_objects(server.tiles[i][::-1], 0)
+		GameWorld.add_objects(server.tiles[i][::-1], 0)
 
 	# Monsters
 	server.monsters = []
-	server.monsters = copy.deepcopy(TestMap.Monster)
+	for lists in TestMap.Monster:
+		server.monsters.append(lists)
 
-	game_objects.add_objects(server.monsters, 2)
+	GameWorld.add_objects(server.monsters, 2)
 
 	# Player
 	server.gamePlayer = Player.Player(50, 80, 0)
-	game_objects.add_object(server.gamePlayer, 3)
+	GameWorld.add_object(server.gamePlayer, 3)
 
 	# item
 	server.items = []
@@ -175,7 +172,7 @@ def enter():
 	game_time = 300
 	global bullets
 	bullets = []
-	game_objects.load_objects_from_file(str)
+	GameWorld.load_objects_from_file(str)
 	# now using test map
 	test()
 
@@ -183,12 +180,12 @@ def enter():
 def restart():
 	global current_stage
 	current_stage -= 1
-	game_objects.clear()
+	GameWorld.clear()
 	enter()
 
 
 def exit():
-	game_objects.clear()
+	GameWorld.clear()
 	pass
 
 
@@ -225,7 +222,7 @@ def update():
 	global game_score, player_life, game_coin, game_time, screen_offset
 
 	# move everything
-	for objs in game_objects.all_objects():
+	for objs in GameWorld.all_objects():
 		objs.update()
 
 	# player-tile collide
@@ -261,19 +258,19 @@ def update():
 		if state is not None:
 			x_collide, y_collide = state
 			if x_collide:
-				game_objects.remove_object(bullet)
+				GameWorld.remove_object(bullet)
 				bullets.remove(bullet)
 				continue
 			if y_collide:
 				bullet.hit_floor()
 		else:
-			game_objects.remove_object(bullet)
+			GameWorld.remove_object(bullet)
 			bullets.remove(bullet)
 			continue
 
 		# bullet timer
 		if not bullet.is_still_alive():
-			game_objects.remove_object(bullet)
+			GameWorld.remove_object(bullet)
 			bullets.remove(bullet)
 
 	# server.monsters
@@ -309,8 +306,8 @@ def update():
 		# monster-bullet collide
 		for bullet in bullets:
 			if check_collide(bullet, monster):
-				game_objects.remove_object(bullet)
-				game_objects.remove_object(monster)
+				GameWorld.remove_object(bullet)
+				GameWorld.remove_object(monster)
 				bullets.remove(bullet)
 				server.monsters.remove(monster)
 				game_score += 100
@@ -320,7 +317,7 @@ def update():
 	for item in server.items:
 		# kill lifetime end
 		if not item.is_still_alive():
-			game_objects.remove_object(item)
+			GameWorld.remove_object(item)
 			server.items.remove(item)
 			continue
 
@@ -342,7 +339,7 @@ def update():
 			else:
 				# star
 				pass
-			game_objects.remove_object(item)
+			GameWorld.remove_object(item)
 			server.items.remove(item)
 			continue
 
@@ -378,7 +375,7 @@ def update():
 
 def draw():
 	clear_canvas()
-	for objs in game_objects.all_objects():
+	for objs in GameWorld.all_objects():
 		objs.draw()
 
 	# for line in server.tiles:
