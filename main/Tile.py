@@ -8,7 +8,6 @@ import server
 # Tile is square
 TILE_SIZE = 40
 
-
 # Floor : 0
 # Normal Block : 33
 # Empty_Sky = 56
@@ -83,7 +82,7 @@ class Tile:
 			self.__frame = \
 				(self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % \
 				FRAMES_PER_ACTION
-			# self.__frame = (self.__frame + 1) % 40
+		# self.__frame = (self.__frame + 1) % 40
 
 		if self.__bBreaking_Animation:
 			# Blocks go up
@@ -155,6 +154,18 @@ class Tile:
 	@classmethod
 	def set_image(cls, tileImage):
 		cls.__imageSprite = tileImage
+
+	# 저장할 정보를 선택하는 함수
+	def __getstate__(self):
+		# x, y, collide, breakable, tile_number, item_num=0
+		state = {'__x': self.__x, '__y': self.__y, '__bCollideOn': self.__bCollideOn,
+				 '__type': self.__type, '__item': self.__item}
+		return state
+
+	# 정보를 저장하는 함수
+	def __setstate__(self, state):
+		self.__init__(0, 0, True, True, 0, 0)
+		self.__dict__.update(state)
 
 
 # Class End

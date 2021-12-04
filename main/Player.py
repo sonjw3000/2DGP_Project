@@ -308,8 +308,9 @@ class Player:
 		# Set Frame
 		if bFrame:
 			# self.__frame = (self.__frame + 1) % 40
-			self.__frame = (
-									   self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
+			self.__frame = \
+				(self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % \
+				FRAMES_PER_ACTION
 		else:
 			self.__frame = 0
 
@@ -321,6 +322,15 @@ class Player:
 			Tile.TILE_SIZE + Tile.TILE_SIZE - ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE) / 2)
 
 	# draw_rectangle(*(self.get_position()))
+
+	def __getstate__(self):
+		# x, y, dir, size
+		state = {'__x': self.__x, '__y': self.__y, '__dir': self.__dir, '__size': self.size}
+		return state
+
+	def __setstate__(self, state):
+		self.__init__(2, 3, 2)
+		self.__dict__.update(state)
 
 	# Draw End
 
@@ -336,6 +346,8 @@ class Player:
 
 	def set_size(self, size):
 		self.__size = size
+
+
 # Test Funcs
 # def sprite_up(self):
 # 	self.__imgSprite += 1

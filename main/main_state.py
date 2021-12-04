@@ -32,7 +32,8 @@ def test():
 
 
 	server.tiles = []
-	server.tiles = copy.deepcopy(TestMap.TestMapTile)
+	for lists in TestMap.TestMapTile:
+		server.tiles.append(lists)
 
 	for i in range(len(server.tiles) - 1, 0 - 1, -1):
 		game_objects.add_objects(server.tiles[i][::-1], 0)

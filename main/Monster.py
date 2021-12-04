@@ -1,6 +1,7 @@
 from pico2d import *
 import game_framework
 import main_state
+
 MONSTER_SPEED_X = 1.5
 MONSTER_SIZE = 40
 
@@ -52,7 +53,8 @@ class Monster:
 
 		self.__y += self.__speed_y * game_framework.frame_time
 
-		self.__frame = (self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
+		self.__frame = (
+								   self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
 
 	def get_position(self):
 		return (self.__x - MONSTER_SIZE / 2,
@@ -78,3 +80,14 @@ class Monster:
 	@classmethod
 	def set_image(cls, monster_image):
 		cls.__image = monster_image
+
+	# 저장할 정보를 선택하는 함수
+	def __getstate__(self):
+		# x, y, dir, type
+		state = {'__x': self.__x, '__y': self.__y, '__dir': self.__dir, '__type': self.__type}
+		return state
+
+	# 정보를 저장하는 함수
+	def __setstate__(self, state):
+		self.__init__(0, 0, 0, 0)
+		self.__dict__.update(state)
