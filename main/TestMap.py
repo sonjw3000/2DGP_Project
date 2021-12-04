@@ -6,6 +6,7 @@ from Bullet import *
 import Player
 import Monster
 import main_this_is_trash
+import pickle
 
 
 # 800, 600
@@ -36,20 +37,32 @@ Monster = [
 ]
 
 if __name__ == "__main__":
+	# save map
+	with open("map/test_map/tiles", "wb") as f:
+		pickle.dumps(TestMapTile, f)
+
+	with open("map/test_map/monsters", "wb") as f:
+		pickle.dumps(Monster, f)
+
+	with open("map/test_map/player", "wb") as f:
+		pickle.dumps(Monster, f)
+
 	# Init game Settings
-	open_canvas()
+	# open_canvas()
+	#
+	# game = main_this_is_trash.GameRunner()
+	#
+	# game.init_game()
+	# game.tiles = TestMapTile
+	# game.monsters = Monster
+	#
+	# # Game Loop
+	# while game.bGameLoop:
+	# 	game.input()
+	# 	game.update()
+	# 	game.draw()
+	# 	delay(0.01)
+	#
+	# close_canvas()
 
-	game = main_this_is_trash.GameRunner()
-
-	game.init_game()
-	game.tiles = TestMapTile
-	game.monsters = Monster
-
-	# Game Loop
-	while game.bGameLoop:
-		game.input()
-		game.update()
-		game.draw()
-		delay(0.01)
-
-	close_canvas()
+	pass

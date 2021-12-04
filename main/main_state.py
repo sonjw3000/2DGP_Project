@@ -181,7 +181,7 @@ def enter():
 	game_time = 300
 	global bullets
 	bullets = []
-	# game_objects.load_objects_from_file(str)
+	game_objects.load_objects_from_file(str)
 	# now using test map
 	test()
 

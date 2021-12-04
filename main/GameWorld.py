@@ -1,4 +1,5 @@
 #
+import pickle
 
 # layer 0 : tiles
 # layer 1 : coins, items
@@ -39,4 +40,5 @@ class GameObjects:
 		return self.objects[layer_index]
 
 	def load_objects_from_file(self, file_route):
+
 		pass
