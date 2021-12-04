@@ -3,6 +3,7 @@ import Player
 import Item
 import game_framework
 import main_state
+import server
 
 # Tile is square
 TILE_SIZE = 40
@@ -101,7 +102,7 @@ class Tile:
 					# if player is small, make mushroom
 					item_type = self.__item
 					if item_type == 1 or item_type == 4:
-						if main_state.gamePlayer.get_size() >= 1:
+						if server.gamePlayer.get_size() >= 1:
 							# flower
 							item_type = 1
 						else:
@@ -115,7 +116,7 @@ class Tile:
 
 					new_item = Item.Item(self.__x, self.__y + TILE_SIZE, item_type - 1)
 					main_state.game_objects.add_object(new_item, 1)
-					main_state.items.append(new_item)
+					server.items.append(new_item)
 					pass
 				elif self.__type == 33:
 					self.__type = 56

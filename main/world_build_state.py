@@ -5,14 +5,14 @@ import os
 
 from pico2d import *
 import game_framework
-import game_world
+import GameWorld as game_world
 
 import main_state
 
 import server
 
-from boy import Boy
-from zombie import Zombie
+from Tile import Tile
+from Monster import Monster
 
 
 boy = None
