@@ -325,7 +325,7 @@ class Player:
 
 	def __getstate__(self):
 		# x, y, dir, size
-		state = {'__x': self.__x, '__y': self.__y, '__dir': self.__dir, '__size': self.size}
+		state = {'__x': self.__x, '__y': self.__y, '__dir': self.__dir, '__size': self.__size}
 		return state
 
 	def __setstate__(self, state):
