@@ -5,17 +5,13 @@ import Monster
 import Bullet
 import Tile
 import game_framework
-
 import copy
+
+import server
 
 # for test
 import TestMap
 
-gamePlayer = None
-monsters = None
-bullets = None
-tiles = None
-items = None
 font = None
 
 game_objects = GameObjects()
@@ -34,28 +30,25 @@ def test():
 	global game_objects
 	# Tiles
 
-	global tiles
-	tiles = []
-	tiles = copy.deepcopy(TestMap.TestMapTile)
 
-	for i in range(len(tiles) - 1, 0 - 1, -1):
-		game_objects.add_objects(tiles[i][::-1], 0)
+	server.tiles = []
+	server.tiles = copy.deepcopy(TestMap.TestMapTile)
+
+	for i in range(len(server.tiles) - 1, 0 - 1, -1):
+		game_objects.add_objects(server.tiles[i][::-1], 0)
 
 	# Monsters
-	global monsters
-	monsters = []
-	monsters = copy.deepcopy(TestMap.Monster)
+	server.monsters = []
+	server.monsters = copy.deepcopy(TestMap.Monster)
 
-	game_objects.add_objects(monsters, 2)
+	game_objects.add_objects(server.monsters, 2)
 
 	# Player
-	global gamePlayer
-	gamePlayer = Player.Player(50, 80, 0)
-	game_objects.add_object(gamePlayer, 3)
+	server.gamePlayer = Player.Player(50, 80, 0)
+	game_objects.add_object(server.gamePlayer, 3)
 
 	# item
-	global items
-	items = []
+	server.items = []
 
 	# load img
 	tileImage = load_image('./resource/tiles/overworld.png')
@@ -99,22 +92,22 @@ def check_tile_collide(left, bottom, right, top):
 	if left_index < 0:
 		xCol = -1
 		left_index = 0
-	elif right_index >= len(tiles[0]):
+	elif right_index >= len(server.tiles[0]):
 		xCol = 1
-		right_index = len(tiles[0]) - 1
-	elif tiles[bottom_index + 1][left_index].get_is_collidable() or \
-			tiles[top_index][left_index].get_is_collidable():
+		right_index = len(server.tiles[0]) - 1
+	elif server.tiles[bottom_index + 1][left_index].get_is_collidable() or \
+			server.tiles[top_index][left_index].get_is_collidable():
 		xCol = -1
-	elif tiles[bottom_index + 1][right_index].get_is_collidable() or \
-			tiles[top_index][right_index].get_is_collidable():
+	elif server.tiles[bottom_index + 1][right_index].get_is_collidable() or \
+			server.tiles[top_index][right_index].get_is_collidable():
 		xCol = 1
 
 	# y collide check here
-	if tiles[bottom_index][left_index].get_is_collidable() or \
-			tiles[bottom_index][right_index].get_is_collidable():
+	if server.tiles[bottom_index][left_index].get_is_collidable() or \
+			server.tiles[bottom_index][right_index].get_is_collidable():
 		yCol = -1
-	elif (tiles[top_index][left_index].get_is_collidable() or \
-		  tiles[top_index][right_index].get_is_collidable()):
+	elif (server.tiles[top_index][left_index].get_is_collidable() or \
+		  server.tiles[top_index][right_index].get_is_collidable()):
 		yCol = 1
 
 	return xCol, yCol * (bottom_index + 1)
@@ -136,14 +129,14 @@ def check_tile_collide_x(left, bottom, right, top):
 	if left_index < 0:
 		xCol = -1
 		left_index = 0
-	elif right_index >= len(tiles[0]):
+	elif right_index >= len(server.tiles[0]):
 		xCol = 1
-		right_index = len(tiles[0]) - 1
-	elif tiles[bottom_index + 1][left_index].get_is_collidable() or \
-			tiles[top_index][left_index].get_is_collidable():
+		right_index = len(server.tiles[0]) - 1
+	elif server.tiles[bottom_index + 1][left_index].get_is_collidable() or \
+			server.tiles[top_index][left_index].get_is_collidable():
 		xCol = -1
-	elif tiles[bottom_index + 1][right_index].get_is_collidable() or \
-			tiles[top_index][right_index].get_is_collidable():
+	elif server.tiles[bottom_index + 1][right_index].get_is_collidable() or \
+			server.tiles[top_index][right_index].get_is_collidable():
 		xCol = 1
 
 	return xCol
@@ -162,11 +155,11 @@ def check_tile_collide_y(left, bottom, right, top):
 		return None
 
 	# y collide check here
-	if tiles[bottom_index][left_index].get_is_collidable() or \
-			tiles[bottom_index][right_index].get_is_collidable():
+	if server.tiles[bottom_index][left_index].get_is_collidable() or \
+			server.tiles[bottom_index][right_index].get_is_collidable():
 		yCol = -1
-	elif (tiles[top_index][left_index].get_is_collidable() or \
-		  tiles[top_index][right_index].get_is_collidable(True)):
+	elif (server.tiles[top_index][left_index].get_is_collidable() or \
+		  server.tiles[top_index][right_index].get_is_collidable(True)):
 		yCol = 1
 
 	return yCol * (bottom_index + 1)
@@ -200,7 +193,7 @@ def exit():
 
 def handle_events():
 	global game_coin, player_life, game_time
-	gamePlayer.input()
+	server.gamePlayer.input()
 
 	game_events = get_events()
 	for event in game_events:
@@ -214,11 +207,11 @@ def handle_events():
 				restart()
 		# cheat keys
 			# elif event.key == SDLK_F1:
-			# 	gamePlayer.set_size(0)
+			# 	server.gamePlayer.set_size(0)
 			# elif event.key == SDLK_F2:
-			# 	gamePlayer.set_size(1)
+			# 	server.gamePlayer.set_size(1)
 			# elif event.key == SDLK_F3:
-			# 	gamePlayer.set_size(2)
+			# 	server.gamePlayer.set_size(2)
 			# elif event.key == SDLK_p:
 			# 	game_coin += 10
 			# elif event.key == SDLK_m:
@@ -236,28 +229,28 @@ def update():
 
 	# player-tile collide
 	# check x col
-	state = check_tile_collide_x(*(gamePlayer.get_position()))
+	state = check_tile_collide_x(*(server.gamePlayer.get_position()))
 	if state is not None:
 		x_collide = state
 		if x_collide:
-			gamePlayer.go_x_back()
+			server.gamePlayer.go_x_back()
 	# check y col
-	state = check_tile_collide_y(*(gamePlayer.get_position()))
+	state = check_tile_collide_y(*(server.gamePlayer.get_position()))
 	if state is not None:
 		y_collide = state
 		if y_collide:
 			if y_collide > 0:
-				if gamePlayer.hit_ceil():
-					l, b, r, t = gamePlayer.get_position()
+				if server.gamePlayer.hit_ceil():
+					l, b, r, t = server.gamePlayer.get_position()
 
 					left_index = int((l + 1) // Tile.TILE_SIZE)
 					right_index = int((r - 1) // Tile.TILE_SIZE)
 					top_index = int(t // Tile.TILE_SIZE)
 
-					tiles[top_index][left_index].collide()
-					tiles[top_index][right_index].collide()
+					server.tiles[top_index][left_index].collide()
+					server.tiles[top_index][right_index].collide()
 			else:
-				gamePlayer.land(y_collide * Tile.TILE_SIZE * -1)
+				server.gamePlayer.land(y_collide * Tile.TILE_SIZE * -1)
 	else:
 		print("player out")
 
@@ -282,11 +275,11 @@ def update():
 			game_objects.remove_object(bullet)
 			bullets.remove(bullet)
 
-	# monsters
-	for monster in monsters:
+	# server.monsters
+	for monster in server.monsters:
 		# player-monster collide
-		if check_collide(monster, gamePlayer) and not gamePlayer.is_invincible():
-			if not gamePlayer.size_down():
+		if check_collide(monster, server.gamePlayer) and not server.gamePlayer.is_invincible():
+			if not server.gamePlayer.size_down():
 				# reload cur stage
 				global player_life
 				player_life -= 1
@@ -318,28 +311,28 @@ def update():
 				game_objects.remove_object(bullet)
 				game_objects.remove_object(monster)
 				bullets.remove(bullet)
-				monsters.remove(monster)
+				server.monsters.remove(monster)
 				game_score += 100
 				continue
 
-	# items
-	for item in items:
+	# server.items
+	for item in server.items:
 		# kill lifetime end
 		if not item.is_still_alive():
 			game_objects.remove_object(item)
-			items.remove(item)
+			server.items.remove(item)
 			continue
 
 		item_type = item.get_type()
 
 		# check collide with player
-		if check_collide(item, gamePlayer):
+		if check_collide(item, server.gamePlayer):
 			if item_type == 0 or item_type == 3:
 				# flower, mushroom(red)
 				new_size = 1 + (item_type == 0)
-				if new_size < gamePlayer.get_size():
-					new_size = gamePlayer.get_size()
-				gamePlayer.set_size(new_size)
+				if new_size < server.gamePlayer.get_size():
+					new_size = server.gamePlayer.get_size()
+				server.gamePlayer.set_size(new_size)
 				game_score += 500 + (item_type == 0) * 500
 			elif item_type == 4:
 				# green mushroom
@@ -349,7 +342,7 @@ def update():
 				# star
 				pass
 			game_objects.remove_object(item)
-			items.remove(item)
+			server.items.remove(item)
 			continue
 
 		# don't have to check col_tile
@@ -377,8 +370,8 @@ def update():
 
 	# screen offset setting
 	screen_offset = clamp(0,
-				   gamePlayer.get_x() - game_framework.w / 2,
-				   len(tiles[0]) * Tile.TILE_SIZE - game_framework.w)
+				   server.gamePlayer.get_x() - game_framework.w / 2,
+				   len(server.tiles[0]) * Tile.TILE_SIZE - game_framework.w)
 
 
 
@@ -387,7 +380,7 @@ def draw():
 	for objs in game_objects.all_objects():
 		objs.draw()
 
-	# for line in tiles:
+	# for line in server.tiles:
 	# 	for t in line:
 	# 		t.draw_breaking()
 

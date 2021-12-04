@@ -11,7 +11,6 @@ import pickle
 
 # 800, 600
 
-# 맵툴을 만들자 제발
 # 가로 20, 세로 15
 
 TestMapTile = [
