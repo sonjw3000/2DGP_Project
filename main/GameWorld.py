@@ -2,6 +2,9 @@
 import os
 import pickle
 import server
+import json
+import main_state
+
 # layer 0 : tiles
 # layer 1 : coins, items
 # layer 2 : monster
@@ -52,21 +55,57 @@ def load_objects_from_file(file_route):
 def save():
 	# with open('game.sav', 'wb') as f:
 	# 	pickle.dump(objects, f)
+
+	cur_path = os.getcwd()
+	# print(cur_path)
+	os.chdir(os.path.join(cur_path, 'stage/lastgame'))
+
+	# scene num
+	with open("scene_data.json", 'w') as f:
+		data = {
+			"life": main_state.player_life,
+			"score": main_state.game_score,
+			"coin": main_state.game_coin,
+			"time": main_state.game_time,
+			"stage": main_state.current_stage
+		}
+		json.dump(data, f)
+
+	# tiles
 	with open("tiles.sav", "wb") as f:
 		pickle.dump(server.tiles, f)
 
+	# monsters
 	with open("monsters.sav", "wb") as f:
 		pickle.dump(objects[2], f)
 
+	# player
 	with open("player.sav", "wb") as f:
-		pickle.dump(objects[3], f)
+		pickle.dump(server.gamePlayer, f)
+
+	os.chdir(cur_path)
 
 
-def load():
+def load(stage_num):
 	global objects
 
 	clear()
 	# move to save directory
+	cur_path = os.getcwd()
+	# print(cur_path)
+	if stage_num == -1:			# this is test map
+		# os.chdir(os.path.join(cur_path, 'stage/test'))
+		pass
+	elif stage_num == -2:		# load last saved game
+		os.chdir(os.path.join(cur_path, 'stage/lastgame'))
+		with open("scene_data.json", 'r') as f:
+			stage_data = json.load(f)
+			main_state.player_life = stage_data["life"]
+			main_state.game_score = stage_data["score"]
+			main_state.game_coin = stage_data["coin"]
+			main_state.game_time = stage_data["time"]
+			main_state.current_stage = stage_data["stage"]
+
 
 	# load tiles
 	with open("tiles.sav", "rb") as f:
@@ -77,10 +116,14 @@ def load():
 
 	with open("monsters.sav", "rb") as f:
 		monster = pickle.load(f)
-		objects[2] = monster
+		add_objects(monster, 2)
 		server.monsters = monster
 
 	with open("player.sav", "rb") as f:
 		player = pickle.load(f)
-		objects[3] = player
+		add_object(player, 3)
 		server.gamePlayer = player
+
+	os.chdir(cur_path)
+
+	print("stage :", stage_num, "load completed")

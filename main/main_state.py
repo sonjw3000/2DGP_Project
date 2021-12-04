@@ -24,6 +24,24 @@ game_time = 300
 
 screen_offset = 0
 
+
+def set_images():
+	tileImage = load_image('./resource/tiles/overworld.png')
+	Tile.Tile.set_image(tileImage)
+
+	bulletImg = load_image('./resource/bullets.png')
+	Bullet.Bullet.set_image(bulletImg)
+
+	monsterImg = load_image("./resource/monsters.png")
+	Monster.Monster.set_image(monsterImg)
+
+	playerImg = load_image("./resource/Mario_Real.png")
+	Player.Player.set_image(playerImg)
+
+	global font
+	font = load_font('./resource/ENCR10B.TTF', 16)
+
+
 def test():
 	# Tiles
 
@@ -164,23 +182,22 @@ def check_tile_collide_y(left, bottom, right, top):
 
 
 def enter():
-	global current_stage, game_time, screen_offset
-	current_stage += 1
+	global game_time, screen_offset
 	screen_offset = 0
-	str = "어쨋든 스테이지 파일임_" + current_stage.__str__()
 
-	game_time = 300
+	# GameWorld.load(current_stage)
 	server.bullets = []
-	GameWorld.load_objects_from_file(str)
+	server.items = []
+	# game_time = 300
+
 	# now using test map
-	test()
+	# test()
+	set_images()
 
 
 def restart():
-	global current_stage
-	current_stage -= 1
 	GameWorld.clear()
-	enter()
+	GameWorld.load(current_stage)
 
 
 def exit():

@@ -20,55 +20,55 @@ BULLET_SIZE = 20
 
 
 class Bullet:
-	__image = None
+	image = None
 
 	def __init__(self, x, y, b_dir):
 		# It can active until x go + 500
-		self.__max_lifespan = 150
-		self.__cur_life = 0
-		self.__x, self.__y = x, y
+		self.max_lifespan = 150
+		self.cur_life = 0
+		self.x, self.y = x, y
 
-		self.__bef_y = y
+		self.bef_y = y
 
-		self.__x_Speed = -BULLET_SPEED_PPS + 2 * b_dir * BULLET_SPEED_PPS
-		self.__y_Speed = -BULLET_SPEED_Y_PPS / 2
+		self.x_Speed = -BULLET_SPEED_PPS + 2 * b_dir * BULLET_SPEED_PPS
+		self.y_Speed = -BULLET_SPEED_Y_PPS / 2
 
-		self.__frame = 0
+		self.frame = 0
 
 	def update(self):
 		# Move here
-		self.__bef_y = self.__y
-		self.__frame = (self.__frame + 2) % 40
+		self.bef_y = self.y
+		self.frame = (self.frame + 2) % 40
 
-		self.__cur_life += 1
+		self.cur_life += 1
 
-		self.__x += self.__x_Speed * game_framework.frame_time
-		self.__y += self.__y_Speed * game_framework.frame_time
-		self.__y_Speed -= 10 * BULLET_SPEED_Y_PPS * game_framework.frame_time
+		self.x += self.x_Speed * game_framework.frame_time
+		self.y += self.y_Speed * game_framework.frame_time
+		self.y_Speed -= 10 * BULLET_SPEED_Y_PPS * game_framework.frame_time
 
-		if self.__y_Speed < -BULLET_SPEED_Y_PPS:
-			self.__y_Speed = -BULLET_SPEED_Y_PPS
+		if self.y_Speed < -BULLET_SPEED_Y_PPS:
+			self.y_Speed = -BULLET_SPEED_Y_PPS
 
 	# return true when it is alive
 	def is_still_alive(self):
-		return self.__cur_life < self.__max_lifespan
+		return self.cur_life < self.max_lifespan
 
 	def hit_floor(self):
-		self.__y_Speed = self.__y_Speed * -1
-		self.__y = self.__bef_y
+		self.y_Speed = self.y_Speed * -1
+		self.y = self.bef_y
 
 	def get_position(self):
-		return (self.__x - BULLET_SIZE / 2,
-				self.__y - BULLET_SIZE / 2,
-				self.__x + BULLET_SIZE / 2,
-				self.__y + BULLET_SIZE / 2)
+		return (self.x - BULLET_SIZE / 2,
+				self.y - BULLET_SIZE / 2,
+				self.x + BULLET_SIZE / 2,
+				self.y + BULLET_SIZE / 2)
 
 	def draw(self):
 		# draw_rectangle(*(self.get_position()))
-		self.__image.clip_draw(9 * (self.__frame // 10), 0, 9, 9,
-							   self.__x - main_state.screen_offset, self.__y, BULLET_SIZE, BULLET_SIZE)
+		self.image.clip_draw(9 * (self.frame // 10), 0, 9, 9,
+							   self.x - main_state.screen_offset, self.y, BULLET_SIZE, BULLET_SIZE)
 		pass
 
 	@classmethod
 	def set_image(cls, tileImage):
-		cls.__image = tileImage
+		cls.image = tileImage

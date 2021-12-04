@@ -12,9 +12,7 @@ from Player import Player
 import Tile
 import Monster
 
-
-boy = None
-
+current_stage = 0
 
 name = "WorldBuildState"
 
@@ -54,12 +52,11 @@ def create_new_world():
 
 # load last game
 def load_saved_world():
-    GameWorld.load()
-
-    for o in GameWorld.all_objects():
-        if isinstance(o, Player):
-            server.gamePlayer = o
-            break
+    GameWorld.load(-2)      # load saved stage
+    # for o in GameWorld.all_objects():
+    #     if isinstance(o, Player):
+    #         server.gamePlayer = o
+    #         break
 
     pass
 

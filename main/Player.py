@@ -53,227 +53,226 @@ class EndState:
 
 
 class Player:
-	def __init__(self, x=8, y=16, size=2):
-		# Init Image Sprite
-		self.__characterImageSprite = load_image('./resource/Mario_Real.png')
+	characterImageSprite = None
 
+	def __init__(self, x=8, y=16, size=2):
 		# Mario Moving bool variables
-		self.__bRunning = False
-		self.__bBreak = False
-		self.__bSitDown = False
-		self.__bRunning = False
-		self.__bAttack = False
-		self.__bJump = False
-		self.__bFalling = False
+		self.bRunning = False
+		self.bBreak = False
+		self.bSitDown = False
+		self.bRunning = False
+		self.bAttack = False
+		self.bJump = False
+		self.bFalling = False
 
 		# invincible control variables
-		self.__bInvincible = False
-		self.__invincible_timer = 0.0
+		self.bInvincible = False
+		self.invincible_timer = 0.0
 
 		# Set Pos
-		self.__x = x
-		self.__y = y
+		self.x = x
+		self.y = y
 
 		# bef pos
-		self.__bef_x = x
-		self.__bef_y = y
+		self.bef_x = x
+		self.bef_y = y
 
 		# Mario Current Size
-		self.__size = size
+		self.size = size
 
 		# Mario Move Direction -1 : left, 0 : Idle, 1 : Right
-		self.__imgSprite = 0
-		self.__frame = 0
-		self.__bLookRight = True
+		self.imgSprite = 0
+		self.frame = 0
+		self.bLookRight = True
 
-		self.__speed_x = 0
-		self.__speed_y = 0
+		self.speed_x = 0
+		self.speed_y = 0
 
-		self.__dir = 0
+		self.dir = 0
 
-		self.__yMove = 0
+		self.yMove = 0
 
 	# Constructor End
 
 	# Returns rectangle tuple (Left, Bottom, Right, Top)
 	def get_position(self):
-		return (self.__x - Tile.TILE_SIZE / 2,
-				self.__y - Tile.TILE_SIZE,
-				self.__x + Tile.TILE_SIZE / 2,
-				self.__y + Tile.TILE_SIZE - ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE))
+		return (self.x - Tile.TILE_SIZE / 2,
+				self.y - Tile.TILE_SIZE,
+				self.x + Tile.TILE_SIZE / 2,
+				self.y + Tile.TILE_SIZE - ((self.bSitDown or self.size == 0) * Tile.TILE_SIZE))
 
 	def hit_ceil(self):
-		if self.__speed_y <= 0:
+		if self.speed_y <= 0:
 			return False
 
-		self.__speed_y *= -1
-		self.__bFalling = True
+		self.speed_y *= -1
+		self.bFalling = True
 		return True
 
 	def input(self):
-		self.__dir = 0
+		self.dir = 0
 		bKeyPressed = False
-		self.__bRunning = False
+		self.bRunning = False
 
 		# Move Start
 		if is_pressed('left'):
 			bKeyPressed = True
-			self.__bRunning = True
+			self.bRunning = True
 
 			# Speed Setting
-			self.__dir -= 1
+			self.dir -= 1
 
 			# Flag Setting
-			if self.__speed_x > 0:
+			if self.speed_x > 0:
 				# Breaking
-				# self.__speed_x -= PLAYER_SPEED_X / 2
-				self.__bLookRight = False
-				self.__bBreak = True
+				# self.speed_x -= PLAYER_SPEED_X / 2
+				self.bLookRight = False
+				self.bBreak = True
 			else:
 				# Running
-				self.__bLookRight = False
-				if self.__bBreak:
-					# if self.__speed_x <= -PLAYER_SPEED_X / 2:
-					self.__bBreak = False
+				self.bLookRight = False
+				if self.bBreak:
+					# if self.speed_x <= -PLAYER_SPEED_X / 2:
+					self.bBreak = False
 
 		if is_pressed('right'):
 			bKeyPressed = True
-			self.__bRunning = True
+			self.bRunning = True
 
 			# Speed Setting
-			self.__dir += 1
+			self.dir += 1
 
 			# Flag Setting
-			if self.__speed_x < 0:
+			if self.speed_x < 0:
 				# Breaking
-				# self.__speed_x += PLAYER_SPEED_X / 2
-				self.__bLookRight = True
-				self.__bBreak = True
+				# self.speed_x += PLAYER_SPEED_X / 2
+				self.bLookRight = True
+				self.bBreak = True
 			else:
 				# Running
-				self.__bLookRight = True
-				if self.__bBreak:
-					# if self.__speed_x >= PLAYER_SPEED_X / 2:
-					self.__bBreak = False
+				self.bLookRight = True
+				if self.bBreak:
+					# if self.speed_x >= PLAYER_SPEED_X / 2:
+					self.bBreak = False
 
 		if is_pressed('down'):
 			bKeyPressed = True
-			self.__bSitDown = True
+			self.bSitDown = True
 		else:
-			self.__bSitDown = False
+			self.bSitDown = False
 
 		if is_pressed('up'):
 			# jump gogo
 			bKeyPressed = True
-			if not self.__bFalling:
-				self.__speed_y = PLAYER_TERMINAL_VELOCITY_PPS
-				self.__bJump = True
-				self.__yMove += self.__speed_y
-			if self.__yMove >= PLAYER_MAX_JUMP_HEIGHT:
-				self.__bFalling = True
+			if not self.bFalling:
+				self.speed_y = PLAYER_TERMINAL_VELOCITY_PPS
+				self.bJump = True
+				self.yMove += self.speed_y
+			if self.yMove >= PLAYER_MAX_JUMP_HEIGHT:
+				self.bFalling = True
 		else:
-			self.__bFalling = True
+			self.bFalling = True
 
 		# Slow Down
-		if self.__speed_x > 0:
-			# self.__speed_x -= PLAYER_SPEED_X / 3
-			if self.__speed_x < 0:
-				self.__speed_x = 0
+		if self.speed_x > 0:
+			# self.speed_x -= PLAYER_SPEED_X / 3
+			if self.speed_x < 0:
+				self.speed_x = 0
 
-		elif self.__speed_x < 0:
-			# self.__speed_x += PLAYER_SPEED_X / 3
-			if self.__speed_x > 0:
-				self.__speed_x = 0
+		elif self.speed_x < 0:
+			# self.speed_x += PLAYER_SPEED_X / 3
+			if self.speed_x > 0:
+				self.speed_x = 0
 
 		if not bKeyPressed:
-			self.__bBreak = False
+			self.bBreak = False
 		# Move End
 
-		if self.__size == 2 and is_pressed('ctrl'):
-			if not self.__bAttack:
-				self.__bAttack = True
+		if self.size == 2 and is_pressed('ctrl'):
+			if not self.bAttack:
+				self.bAttack = True
 				# Make bullet here
-				bullet = Bullet.Bullet(self.__x + Tile.TILE_SIZE * (1 - 2 * (not self.__bLookRight)), self.__y,
-									   self.__bLookRight)
+				bullet = Bullet.Bullet(self.x + Tile.TILE_SIZE * (1 - 2 * (not self.bLookRight)), self.y,
+									   self.bLookRight)
 				server.bullets.append(bullet)
 				GameWorld.add_object(bullet, 2)
 		else:
-			self.__bAttack = False
+			self.bAttack = False
 
 		return None
 
 	# Input End
 	def is_invincible(self):
-		return self.__bInvincible
+		return self.bInvincible
 
 	# returns is still alive
 	def size_down(self):
-		self.__size -= 1
-		if self.__size < 0:
+		self.size -= 1
+		if self.size < 0:
 			return False
-		self.__bInvincible = True
-		self.__invincible_timer = 0.0
+		self.bInvincible = True
+		self.invincible_timer = 0.0
 		return True
 
 	def go_x_back(self):
-		self.__x = self.__bef_x
-		self.__speed_x = 0
+		self.x = self.bef_x
+		self.speed_x = 0
 
 	def land(self, y_pos):
-		self.__speed_y = 0
-		self.__y = y_pos + Tile.TILE_SIZE
-		self.__bJump = False
-		self.__bFalling = False
+		self.speed_y = 0
+		self.y = y_pos + Tile.TILE_SIZE
+		self.bJump = False
+		self.bFalling = False
 
 	def is_jumping(self):
-		return self.__bJump or self.__bFalling
+		return self.bJump or self.bFalling
 
 	def update(self):
-		self.__bef_x = self.__x
-		self.__bef_y = self.__y
+		self.bef_x = self.x
+		self.bef_y = self.y
 
-		if self.__bInvincible:
-			self.__invincible_timer += game_framework.frame_time
-			if self.__invincible_timer >= 5.0:
-				self.__bInvincible = False
-				self.__invincible_timer = 0.0
+		if self.bInvincible:
+			self.invincible_timer += game_framework.frame_time
+			if self.invincible_timer >= 5.0:
+				self.bInvincible = False
+				self.invincible_timer = 0.0
 
 		# x axis
 		# accelerate, breaking
 		dx = PLAYER_SPEED_PPS * game_framework.frame_time * 2
 
 		# break
-		if self.__bBreak:
+		if self.bBreak:
 			dx *= 1.5
 
-		if self.__dir > 0:
-			self.__speed_x += dx
-			if self.__speed_x >= PLAYER_SPEED_PPS:
-				self.__speed_x = PLAYER_SPEED_PPS
-		elif self.__dir < 0:
-			self.__speed_x -= dx
-			if self.__speed_x <= -PLAYER_SPEED_PPS:
-				self.__speed_x = -PLAYER_SPEED_PPS
+		if self.dir > 0:
+			self.speed_x += dx
+			if self.speed_x >= PLAYER_SPEED_PPS:
+				self.speed_x = PLAYER_SPEED_PPS
+		elif self.dir < 0:
+			self.speed_x -= dx
+			if self.speed_x <= -PLAYER_SPEED_PPS:
+				self.speed_x = -PLAYER_SPEED_PPS
 		else:
-			if self.__speed_x > 0:
-				self.__speed_x -= dx
-				if self.__speed_x < 0:
-					self.__speed_x = 0
-			elif self.__speed_x < 0:
-				self.__speed_x += dx
-				if self.__speed_x > 0:
-					self.__speed_x = 0
-		self.__x += self.__speed_x * game_framework.frame_time
+			if self.speed_x > 0:
+				self.speed_x -= dx
+				if self.speed_x < 0:
+					self.speed_x = 0
+			elif self.speed_x < 0:
+				self.speed_x += dx
+				if self.speed_x > 0:
+					self.speed_x = 0
+		self.x += self.speed_x * game_framework.frame_time
 
 		# y axis
-		self.__speed_y -= 12 * PIXEL_PER_METER * game_framework.frame_time
-		if self.__speed_y < -PLAYER_TERMINAL_VELOCITY_PPS:
-			self.__speed_y = -PLAYER_TERMINAL_VELOCITY_PPS
+		self.speed_y -= 12 * PIXEL_PER_METER * game_framework.frame_time
+		if self.speed_y < -PLAYER_TERMINAL_VELOCITY_PPS:
+			self.speed_y = -PLAYER_TERMINAL_VELOCITY_PPS
 
-		self.__y += self.__speed_y * game_framework.frame_time
+		self.y += self.speed_y * game_framework.frame_time
 
 	def draw(self):
-		# print(self.__speed_x)
+		# print(self.speed_x)
 		# img start pos (0,1)
 		# x offset : 17
 		# y offset : 33
@@ -292,40 +291,44 @@ class Player:
 
 		# Image sprite priority
 		# attack > jump > sit > break > running > idle
-		self.__imgSprite = 0
-		if self.__bAttack:
-			self.__imgSprite = 6
-		elif self.__bJump or self.__bFalling:
-			self.__imgSprite = 1
-		elif self.__bSitDown:
-			self.__imgSprite = 8
-		elif self.__bBreak:
-			self.__imgSprite = 7
-		elif self.__bRunning:
-			self.__imgSprite = 2
+		self.imgSprite = 0
+		if self.bAttack:
+			self.imgSprite = 6
+		elif self.bJump or self.bFalling:
+			self.imgSprite = 1
+		elif self.bSitDown:
+			self.imgSprite = 8
+		elif self.bBreak:
+			self.imgSprite = 7
+		elif self.bRunning:
+			self.imgSprite = 2
 			bFrame = True
 
 		# Set Frame
 		if bFrame:
-			# self.__frame = (self.__frame + 1) % 40
-			self.__frame = \
-				(self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % \
+			# self.frame = (self.frame + 1) % 40
+			self.frame = \
+				(self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % \
 				FRAMES_PER_ACTION
 		else:
-			self.__frame = 0
+			self.frame = 0
 
-		self.__characterImageSprite.clip_draw(
-			(self.__imgSprite + (bFrame * int(self.__frame))) * 17 + 153 * self.__bLookRight,
-			(2 - self.__size) * 33,
-			16, 32, self.__x - main_state.screen_offset, self.__y,
+		Player.characterImageSprite.clip_draw(
+			(self.imgSprite + (bFrame * int(self.frame))) * 17 + 153 * self.bLookRight,
+			(2 - self.size) * 33,
+			16, 32, self.x - main_state.screen_offset, self.y,
 			Tile.TILE_SIZE,
-			Tile.TILE_SIZE + Tile.TILE_SIZE - ((self.__bSitDown or self.__size == 0) * Tile.TILE_SIZE) / 2)
+			Tile.TILE_SIZE + Tile.TILE_SIZE - ((self.bSitDown or self.size == 0) * Tile.TILE_SIZE) / 2)
 
 	# draw_rectangle(*(self.get_position()))
 
+	@classmethod
+	def set_image(cls, player_img):
+		cls.characterImageSprite = player_img
+
 	def __getstate__(self):
 		# x, y, dir, size
-		state = {'__x': self.__x, '__y': self.__y, '__dir': self.__dir, '__size': self.__size}
+		state = {'x': self.x, 'y': self.y, 'dir': self.dir, 'size': self.size}
 		return state
 
 	def __setstate__(self, state):
@@ -335,28 +338,28 @@ class Player:
 	# Draw End
 
 	def get_x(self):
-		return self.__x
+		return self.x
 
 	# returns true when dir == right
 	def get_dir(self):
-		return self.__bLookRight
+		return self.bLookRight
 
 	def get_size(self):
-		return self.__size
+		return self.size
 
 	def set_size(self, size):
-		self.__size = size
+		self.size = size
 
 
 # Test Funcs
 # def sprite_up(self):
-# 	self.__imgSprite += 1
+# 	self.imgSprite += 1
 #
 # def sprite_down(self):
-# 	self.__imgSprite -= 1
+# 	self.imgSprite -= 1
 #
 # def size_up(self):
-# 	self.__size += 1
+# 	self.size += 1
 
 
 # Test Funcs End
@@ -366,7 +369,7 @@ class Player:
 
 
 # Mario Test
-if __name__ == "__main__":
+if __name__ == "main":
 	open_canvas()
 
 	bGameLoop = True

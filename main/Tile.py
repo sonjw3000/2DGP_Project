@@ -23,24 +23,24 @@ FRAMES_PER_ACTION = 4
 
 
 class Tile:
-	# __imageSpriteOverWorld = load_image('./resource/tiles/overworld.png')
-	__imageSprite = None
+	# imageSpriteOverWorld = load_image('./resource/tiles/overworld.png')
+	imageSprite = None
 
 	# right bottom == (0, 0)
 	def __init__(self, x, y, collide, breakable, tile_number, item_num=0):
-		self.__x = x + TILE_SIZE // 2
-		self.__y = y + TILE_SIZE // 2
+		self.x = x + TILE_SIZE // 2
+		self.y = y + TILE_SIZE // 2
 
-		self.__offsetY = 0
+		self.offsetY = 0
 
-		self.__bCollideOn = collide
+		self.bCollideOn = collide
 		self.__bBreakable = breakable
-		self.__type = tile_number
+		self.type = tile_number
 
-		self.__bBreaking_Animation = False
-		self.__bBroken = False
+		self.bBreaking_Animation = False
+		self.bBroken = False
 
-		self.__frame = 0
+		self.frame = 0
 		# in items in here (in Item, -1)
 		# 0 : None
 		# 1 : flower
@@ -49,57 +49,57 @@ class Tile:
 		# 4 : mushroom(red, size + 1)
 		# 5 : mushroom(green, life + 1)
 
-		self.__item = item_num
+		self.item = item_num
 
 		# Types
 		# Just see the image file, 0 == > (0,0) img, ...
 		pass
 
 	def get_position(self):
-		return self.__x - TILE_SIZE / 2, self.__y - TILE_SIZE / 2, self.__x + TILE_SIZE / 2, self.__y + TILE_SIZE / 2
+		return self.x - TILE_SIZE / 2, self.y - TILE_SIZE / 2, self.x + TILE_SIZE / 2, self.y + TILE_SIZE / 2
 
 	def get_is_collidable(self, is_from_bottom=False):
-		return self.__bCollideOn or (is_from_bottom and self.__item)
+		return self.bCollideOn or (is_from_bottom and self.item)
 
 	def is_breakable(self):
 		return self.__bBreakable
 
 	def collide(self):
-		if (self.__type == 64 or self.__item) and not self.__bBroken:  # Item Box
-			self.__type = 64
-			self.__bCollideOn = True
-			self.__bBroken = True
+		if (self.type == 64 or self.item) and not self.bBroken:  # Item Box
+			self.type = 64
+			self.bCollideOn = True
+			self.bBroken = True
 			self.__bBreakable = False
-			self.__bBreaking_Animation = True
-		elif self.__type == 33:  # Breakable Block
-			# self.__type = 56
-			self.__bCollideOn = False
-			self.__bBreaking_Animation = True
+			self.bBreaking_Animation = True
+		elif self.type == 33:  # Breakable Block
+			# self.type = 56
+			self.bCollideOn = False
+			self.bBreaking_Animation = True
 
 	def update(self):
 		# if col? then do sth
-		if self.__type == 64 and not self.__bBroken:  # It's Item Box
-			self.__frame = \
-				(self.__frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % \
+		if self.type == 64 and not self.bBroken:  # It's Item Box
+			self.frame = \
+				(self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % \
 				FRAMES_PER_ACTION
-		# self.__frame = (self.__frame + 1) % 40
+		# self.frame = (self.frame + 1) % 40
 
-		if self.__bBreaking_Animation:
+		if self.bBreaking_Animation:
 			# Blocks go up
-			self.__offsetY += game_framework.frame_time * 500
+			self.offsetY += game_framework.frame_time * 500
 
 			# if complete going up
-			if self.__offsetY >= TILE_SIZE // 2:
-				self.__bBreaking_Animation = False
+			if self.offsetY >= TILE_SIZE // 2:
+				self.bBreaking_Animation = False
 				# if type == 64: frame = 4 and go down
-				if self.__item:
-					self.__type = 64
-					self.__bBroken = True
-					self.__frame = 4
+				if self.item:
+					self.type = 64
+					self.bBroken = True
+					self.frame = 4
 
 					# Make Item Here
 					# if player is small, make mushroom
-					item_type = self.__item
+					item_type = self.item
 					if item_type == 1 or item_type == 4:
 						if server.gamePlayer.get_size() >= 1:
 							# flower
@@ -113,13 +113,13 @@ class Tile:
 						main_state.game_score += 100
 						main_state.game_coin += 1
 
-					new_item = Item.Item(self.__x, self.__y + TILE_SIZE, item_type - 1)
+					new_item = Item.Item(self.x, self.y + TILE_SIZE, item_type - 1)
 					GameWorld.add_object(new_item, 1)
 					server.items.append(new_item)
 					pass
-				elif self.__type == 33:
-					self.__type = 56
-					self.__offsetY = 0
+				elif self.type == 33:
+					self.type = 56
+					self.offsetY = 0
 					# start fragment animation here
 					pass
 
@@ -129,37 +129,37 @@ class Tile:
 	def draw(self):
 		# draw_rectangle(*(self.get_position()))
 
-		if self.__bBreaking_Animation:
-			self.__imageSprite.clip_draw(
+		if self.bBreaking_Animation:
+			self.imageSprite.clip_draw(
 				1 + (56 % 16) * 17,
 				1 + (56 // 16) * 17,
-				16, 16, self.__x - main_state.screen_offset, self.__y, TILE_SIZE, TILE_SIZE)
-			self.__imageSprite.clip_draw(
-				1 + (self.__type % 16) * 17 + (int(self.__frame)) * 17,
-				1 + (self.__type // 16) * 17,
-				16, 16, self.__x - main_state.screen_offset, self.__y + self.__offsetY, TILE_SIZE, TILE_SIZE)
+				16, 16, self.x - main_state.screen_offset, self.y, TILE_SIZE, TILE_SIZE)
+			self.imageSprite.clip_draw(
+				1 + (self.type % 16) * 17 + (int(self.frame)) * 17,
+				1 + (self.type // 16) * 17,
+				16, 16, self.x - main_state.screen_offset, self.y + self.offsetY, TILE_SIZE, TILE_SIZE)
 		else:
-			self.__imageSprite.clip_draw(
-				1 + (self.__type % 16) * 17 + (int(self.__frame)) * 17,
-				1 + (self.__type // 16) * 17,
-				16, 16, self.__x - main_state.screen_offset, self.__y, TILE_SIZE, TILE_SIZE)
+			self.imageSprite.clip_draw(
+				1 + (self.type % 16) * 17 + (int(self.frame)) * 17,
+				1 + (self.type // 16) * 17,
+				16, 16, self.x - main_state.screen_offset, self.y, TILE_SIZE, TILE_SIZE)
 
 	def draw_breaking(self):
-		if self.__bBreaking_Animation:
-			self.__imageSprite.clip_draw(
-				1 + (self.__type % 16) * 17 + (int(self.__frame)) * 17,
-				1 + (self.__type // 16) * 17,
-				16, 16, self.__x - main_state.screen_offset, self.__y + self.__offsetY, TILE_SIZE, TILE_SIZE)
+		if self.bBreaking_Animation:
+			self.imageSprite.clip_draw(
+				1 + (self.type % 16) * 17 + (int(self.frame)) * 17,
+				1 + (self.type // 16) * 17,
+				16, 16, self.x - main_state.screen_offset, self.y + self.offsetY, TILE_SIZE, TILE_SIZE)
 
 	@classmethod
 	def set_image(cls, tileImage):
-		cls.__imageSprite = tileImage
+		cls.imageSprite = tileImage
 
 	# 저장할 정보를 선택하는 함수
 	def __getstate__(self):
 		# x, y, collide, breakable, tile_number, item_num=0
-		state = {'__x': self.__x, '__y': self.__y, '__bCollideOn': self.__bCollideOn,
-				 '__type': self.__type, '__item': self.__item}
+		state = {'x': self.x, 'y': self.y, 'bCollideOn': self.bCollideOn,
+				 'type': self.type, 'item': self.item}
 		return state
 
 	# 정보를 저장하는 함수
