@@ -6,7 +6,7 @@ import Bullet
 import game_framework
 import GameWorld
 import main_state
-
+import server
 # import keyboard
 
 # Player Run Speed
@@ -195,8 +195,8 @@ class Player:
 				# Make bullet here
 				bullet = Bullet.Bullet(self.__x + Tile.TILE_SIZE * (1 - 2 * (not self.__bLookRight)), self.__y,
 									   self.__bLookRight)
-				main_state.bullets.append(bullet)
-				main_state.game_objects.add_object(bullet, 2)
+				server.bullets.append(bullet)
+				GameWorld.add_object(bullet, 2)
 		else:
 			self.__bAttack = False
 

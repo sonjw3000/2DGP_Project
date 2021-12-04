@@ -4,7 +4,7 @@ import Item
 import game_framework
 import main_state
 import server
-
+import GameWorld
 # Tile is square
 TILE_SIZE = 40
 
@@ -114,7 +114,7 @@ class Tile:
 						main_state.game_coin += 1
 
 					new_item = Item.Item(self.__x, self.__y + TILE_SIZE, item_type - 1)
-					main_state.game_objects.add_object(new_item, 1)
+					GameWorld.add_object(new_item, 1)
 					server.items.append(new_item)
 					pass
 				elif self.__type == 33:

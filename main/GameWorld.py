@@ -49,10 +49,16 @@ def load_objects_from_file(file_route):
 
 
 def save():
-	with open('game.sav', 'wb') as f:
-		pickle.dump(objects, f)
+	# with open('game.sav', 'wb') as f:
+	# 	pickle.dump(objects, f)
+	with open("./map/test_map/tiles.sav", "wb") as f:
+		pickle.dumps(objects[0], f)
 
-	pass
+	with open("./map/test_map/monsters.sav", "wb") as f:
+		pickle.dumps(objects[2], f)
+
+	with open("./map/test_map/player.sav", "wb") as f:
+		pickle.dumps(objects[3], f)
 
 
 def load():

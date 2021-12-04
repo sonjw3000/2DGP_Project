@@ -170,8 +170,7 @@ def enter():
 	str = "어쨋든 스테이지 파일임_" + current_stage.__str__()
 
 	game_time = 300
-	global bullets
-	bullets = []
+	server.bullets = []
 	GameWorld.load_objects_from_file(str)
 	# now using test map
 	test()
@@ -203,6 +202,10 @@ def handle_events():
 				game_framework.exit_program()
 			elif event.key == SDLK_MINUS:
 				restart()
+			elif event.key == SDLK_s:
+				print("Game Save!")
+				GameWorld.save()
+				# GameWorld.save()
 		# cheat keys
 			# elif event.key == SDLK_F1:
 			# 	server.gamePlayer.set_size(0)
@@ -226,12 +229,6 @@ def update():
 		objs.update()
 
 	# player-tile collide
-	# check x col
-	state = check_tile_collide_x(*(server.gamePlayer.get_position()))
-	if state is not None:
-		x_collide = state
-		if x_collide:
-			server.gamePlayer.go_x_back()
 	# check y col
 	state = check_tile_collide_y(*(server.gamePlayer.get_position()))
 	if state is not None:
@@ -251,27 +248,33 @@ def update():
 				server.gamePlayer.land(y_collide * Tile.TILE_SIZE * -1)
 	else:
 		print("player out")
+	# check x col
+	state = check_tile_collide_x(*(server.gamePlayer.get_position()))
+	if state is not None:
+		x_collide = state
+		if x_collide:
+			server.gamePlayer.go_x_back()
 
 	# bullets
-	for bullet in bullets:
+	for bullet in server.bullets:
 		state = check_tile_collide(*(bullet.get_position()))
 		if state is not None:
 			x_collide, y_collide = state
 			if x_collide:
 				GameWorld.remove_object(bullet)
-				bullets.remove(bullet)
+				server.bullets.remove(bullet)
 				continue
 			if y_collide:
 				bullet.hit_floor()
 		else:
 			GameWorld.remove_object(bullet)
-			bullets.remove(bullet)
+			server.bullets.remove(bullet)
 			continue
 
 		# bullet timer
 		if not bullet.is_still_alive():
 			GameWorld.remove_object(bullet)
-			bullets.remove(bullet)
+			server.bullets.remove(bullet)
 
 	# server.monsters
 	for monster in server.monsters:
@@ -304,11 +307,11 @@ def update():
 			print("monster out")
 
 		# monster-bullet collide
-		for bullet in bullets:
+		for bullet in server.bullets:
 			if check_collide(bullet, monster):
 				GameWorld.remove_object(bullet)
 				GameWorld.remove_object(monster)
-				bullets.remove(bullet)
+				server.bullets.remove(bullet)
 				server.monsters.remove(monster)
 				game_score += 100
 				continue

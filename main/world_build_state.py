@@ -8,7 +8,7 @@ import game_framework
 import GameWorld
 import main_state
 import server
-import Player
+from Player import Player
 import Tile
 import Monster
 
@@ -39,7 +39,7 @@ def resume():
 
 # make new game
 def create_new_world():
-    server.gamePlayer = Player.Player(50, 80, 0)
+    server.gamePlayer = Player(50, 80, 0)
     GameWorld.add_object(server.gamePlayer, 1)
 
     # new stage0 tile
@@ -47,18 +47,18 @@ def create_new_world():
         zombie_data_list = json.load(f)
 
     # new stage0 monster
-    for data in zombie_data_list:
-        zombie = Zombie(data['name'], data['x'], data['y'], data['size'])
-        GameWorld.add_object(zombie, 1)
+    # for data in zombie_data_list:
+    #     zombie = Zombie(data['name'], data['x'], data['y'], data['size'])
+    #     GameWorld.add_object(zombie, 1)
 
 
 # load last game
 def load_saved_world():
     GameWorld.load()
 
-    for o in game_world.all_objects():
-        if isinstance(o, Boy):
-            server.boy = o
+    for o in GameWorld.all_objects():
+        if isinstance(o, Player):
+            server.gamePlayer = o
             break
 
     pass
