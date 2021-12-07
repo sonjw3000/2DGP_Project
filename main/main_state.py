@@ -7,6 +7,8 @@ import game_framework
 import GameWorld
 import copy
 
+import world_build_state
+
 import server
 
 # for test
@@ -385,6 +387,10 @@ def update():
 	if game_time <= 0:
 		player_life -= 1
 		restart()
+
+	if player_life <= 0:
+		print("Game Over")
+		game_framework.change_state(world_build_state)
 
 	# screen offset setting
 	screen_offset = clamp(0,

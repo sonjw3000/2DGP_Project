@@ -37,13 +37,16 @@ def resume():
 
 # make new game
 def create_new_world():
+    main_state.player_life = 5
+    main_state.game_score = 0
+    main_state.game_coin = 0
+    main_state.game_time = 300
+
     server.gamePlayer = Player(50, 80, 0)
     GameWorld.add_object(server.gamePlayer, 1)
 
     # new stage0 tile
-    with open("zombie_data.json", 'r') as f:
-        zombie_data_list = json.load(f)
-
+    GameWorld.load(-1)
     # new stage0 monster
     # for data in zombie_data_list:
     #     zombie = Zombie(data['name'], data['x'], data['y'], data['size'])

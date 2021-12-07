@@ -89,12 +89,13 @@ def save():
 def load(stage_num):
 	global objects
 
+	main_state.current_stage = stage_num
 	clear()
 	# move to save directory
 	cur_path = os.getcwd()
 	# print(cur_path)
 	if stage_num == -1:			# this is test map
-		# os.chdir(os.path.join(cur_path, 'stage/test'))
+		os.chdir(os.path.join(cur_path, 'stage/test'))
 		pass
 	elif stage_num == -2:		# load last saved game
 		os.chdir(os.path.join(cur_path, 'stage/lastgame'))
