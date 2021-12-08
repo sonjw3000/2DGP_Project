@@ -344,7 +344,7 @@ class Player:
 			self.speed_y = -PLAYER_TERMINAL_VELOCITY_PPS
 
 		self.y += self.speed_y * game_framework.frame_time
-		print(self.y)
+		# print(self.y)
 
 		return self.y < -20
 

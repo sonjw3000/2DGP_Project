@@ -5,7 +5,6 @@ import pickle
 # import Monster
 import Flag
 
-
 def main():
 	temp = Flag.Flag(400, 80)
 

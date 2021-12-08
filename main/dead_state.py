@@ -3,6 +3,7 @@ import game_framework
 import GameWorld
 import main_state
 import world_build_state
+import loading_state
 
 import server
 from Player import Player
@@ -11,7 +12,7 @@ import Monster
 
 current_stage = 0
 
-name = "WorldBuildState"
+name = "DeadState"
 
 menu = None
 
@@ -50,7 +51,7 @@ def update():
 				GameWorld.load(current_stage)
 
 			main_state.game_time = 300
-			game_framework.change_state(main_state)
+			game_framework.change_state(loading_state)
 			return
 		else:
 			game_framework.change_state(world_build_state)

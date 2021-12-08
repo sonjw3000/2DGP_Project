@@ -7,6 +7,7 @@ from pico2d import *
 import game_framework
 import GameWorld
 import main_state
+import loading_state
 import server
 from Player import Player
 import Tile
@@ -74,10 +75,10 @@ def handle_events():
                 game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_n:
             create_new_world()
-            game_framework.change_state(main_state)
+            game_framework.change_state(loading_state)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_l:
             load_saved_world()
-            game_framework.change_state(main_state)
+            game_framework.change_state(loading_state)
 
 def update():
     pass
