@@ -45,7 +45,7 @@ def main():
 		[Tile(TILE_SIZE * i, TILE_SIZE * 10, False, False, 56) for i in range(40)],
 		[Tile(TILE_SIZE * i, TILE_SIZE * 11, False, False, 56) for i in range(40)],
 		[Tile(TILE_SIZE * i, TILE_SIZE * 12, False, False, 56) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 13, True, True, 33 + 31 * (i >= 10), 3) for i in range(40)],
+		[Tile(TILE_SIZE * i, TILE_SIZE * 13, False, False, 56) for i in range(40)],
 		[Tile(TILE_SIZE * i, TILE_SIZE * 14, False, False, 56) for i in range(40)],
 	]
 

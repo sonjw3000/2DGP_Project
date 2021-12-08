@@ -14,10 +14,14 @@ name = "DeadState"
 
 bDown = False
 time = 0
+bgm = 0
+
 def enter():
-	global bDown, time
+	global bDown, time, bgm
 	bDown = False
 	time = 0
+	bgm = load_music('sound/stage_clear.mp3')
+	bgm.play(1)
 	# server.gamePlayer.dead()
 	pass
 
@@ -50,19 +54,18 @@ def update():
 	global bDown, time
 
 	if bDown:
-		time += game_framework.frame_time
 		server.gamePlayer.goal_update_2()
-
-		if time >= 1:
-			main_state.current_stage += 1
-			GameWorld.load(main_state.current_stage)
-
-			main_state.game_time = 300
-			game_framework.change_state(loading_state)
-			return
 	elif server.gamePlayer.goal_update():
 		bDown = True
 
+	time += game_framework.frame_time
+	if time >= 8:
+		main_state.current_stage += 1
+		GameWorld.load(main_state.current_stage)
+
+		main_state.game_time = 300
+		game_framework.change_state(loading_state)
+		return
 
 
 def draw():

@@ -170,6 +170,7 @@ class Player:
 				self.speed_y = PLAYER_TERMINAL_VELOCITY_PPS
 				self.bJump = True
 				self.yMove += self.speed_y
+				game_framework.jump_bgm.play(1)
 			if self.yMove >= PLAYER_MAX_JUMP_HEIGHT:
 				self.bFalling = True
 		else:
@@ -194,6 +195,7 @@ class Player:
 			if not self.bAttack:
 				self.bAttack = True
 				# Make bullet here
+				game_framework.fire_ball_bgm.play(1)
 				bullet = Bullet.Bullet(self.x + PLAYER_SIZE * (1 - 2 * (not self.bLookRight)), self.y,
 									   self.bLookRight)
 				server.bullets.append(bullet)
@@ -212,8 +214,10 @@ class Player:
 		self.size -= 1
 		if self.size < 0:
 			return False
+		server.playerSize -= 1
 		self.bInvincible = True
 		self.invincible_timer = 0.0
+		game_framework.size_down_bgm.play(1)
 		return True
 
 	def go_x_back(self):
@@ -325,9 +329,13 @@ class Player:
 			PLAYER_SIZE + PLAYER_SIZE - ((self.bSitDown or self.size == 0) * PLAYER_SIZE) / 2)
 
 	def dead(self):
+		server.playerSize = 0
 		self.speed_y = 300
 		self.size = 0
 		self.bDead = True
+
+	def bounce(self):
+		self.speed_y = 200
 
 	def draw_dead(self):
 		Player.characterImageSprite.clip_draw(
@@ -349,11 +357,11 @@ class Player:
 
 	# returns true when on floor
 	def goal_update(self):
-		self.y -= PLAYER_SPEED_PPS * 0.8 * game_framework.frame_time
+		self.y -= PLAYER_SPEED_PPS * 0.5 * game_framework.frame_time
 		return self.y <= PLAYER_SIZE + ((self.bSitDown or self.size == 0) * PLAYER_SIZE)
 
 	def goal_update_2(self):
-		self.x += PLAYER_SPEED_PPS * 0.8 * game_framework.frame_time
+		self.x += PLAYER_SPEED_PPS * 0.3 * game_framework.frame_time
 		self.bRunning = True
 		self.bJump = False
 		self.bFalling = False
@@ -386,6 +394,9 @@ class Player:
 
 	def set_size(self, size):
 		server.playerSize = size
+		if self.size < size:
+			game_framework.power_up_bgm.play(1)
+
 		self.size = size
 
 

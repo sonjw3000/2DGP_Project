@@ -18,6 +18,7 @@ import server
 # import TestMap
 
 font = None
+bgm = None
 
 current_stage = 0
 
@@ -48,6 +49,11 @@ def set_images():
 
 	global font
 	font = load_font('./resource/ENCR10B.TTF', 16)
+
+	global bgm
+	bgm = load_music('./sound/main_them.mp3')
+	bgm.repeat_play()
+	bgm.set_volume(20)
 
 
 # def test():
@@ -114,7 +120,7 @@ def check_tile_collide(left, bottom, right, top):
 	if bottom_index < 0:
 		# something dead
 		return None
-	if top_index >= len(server.tiles):
+	if bottom_index + 1 >= len(server.tiles):
 		return None
 
 	# x collide check here
@@ -233,6 +239,9 @@ def restart():
 
 def exit():
 	# GameWorld.clear()
+	global bgm
+	bgm.stop()
+	del bgm
 	pass
 
 
@@ -344,9 +353,23 @@ def update():
 
 	# server.monsters
 	for monster in server.monsters:
+		if monster.bDead:
+			if monster.life_dead():
+				GameWorld.remove_object(monster)
+				server.monsters.remove(monster)
+			continue
+
 		# player-monster collide
 		if check_collide(monster, server.gamePlayer) and not server.gamePlayer.is_invincible():
-			if not server.gamePlayer.size_down():
+			monster_rect = monster.get_position()
+			player_rect = server.gamePlayer.get_position()
+
+			dx = monster_rect[2] - player_rect[0]
+			if dx > Player.PLAYER_SIZE:
+				dx = player_rect[2] - monster_rect[0]
+			dy = monster_rect[3] - player_rect[1]
+			if dx < dy:
+				server.gamePlayer.size_down()
 				# reload cur stage
 				global player_life
 				player_life -= 1
@@ -360,10 +383,15 @@ def update():
 					# reload cur state
 					restart()
 					return
+			else:
+				monster.go_dead(False)
+				game_framework.monster_dead_bgm.play(1)
+				server.gamePlayer.bounce()
+				continue
 
 		# monster-tile collide
 		state = check_tile_collide(*(monster.get_position()))
-		if state is not None:
+		if state is not None and not monster.bDead:
 			x_collide, y_collide = state
 			if x_collide:
 				monster.reverse()
@@ -376,11 +404,13 @@ def update():
 		for bullet in server.bullets:
 			if check_collide(bullet, monster):
 				GameWorld.remove_object(bullet)
-				GameWorld.remove_object(monster)
 				server.bullets.remove(bullet)
-				server.monsters.remove(monster)
+				monster.go_dead(True)
+				game_framework.monster_dead_bgm.play(1)
 				game_score += 100
 				continue
+
+
 
 	# server.items
 	for item in server.items:

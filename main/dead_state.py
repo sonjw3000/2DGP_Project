@@ -4,6 +4,7 @@ import GameWorld
 import main_state
 import world_build_state
 import loading_state
+import end_state
 
 import server
 from Player import Player
@@ -13,13 +14,20 @@ import Monster
 name = "DeadState"
 
 menu = None
-
+bgm = None
+time = 0
 
 def enter():
+	global bgm, time
+	time = 0
+	bgm = load_music('sound/1_down.mp3')
+	bgm.play(1)
 	server.gamePlayer.dead()
 
 
 def exit():
+	global bgm
+	del bgm
 	pass
 
 
@@ -41,7 +49,13 @@ def handle_events():
 
 
 def update():
-	if server.gamePlayer.dead_update():
+	global time
+
+	time += game_framework.frame_time
+
+	server.gamePlayer.dead_update()
+
+	if time >= 4:
 		if main_state.player_life > 0:
 			if server.checkpoint.bCaptured:
 				GameWorld.load(-3)
@@ -52,8 +66,8 @@ def update():
 			game_framework.change_state(loading_state)
 			return
 		else:
-			game_framework.change_state(world_build_state)
-			return
+			game_framework.change_state(end_state)
+
 
 def draw():
 	clear_canvas()

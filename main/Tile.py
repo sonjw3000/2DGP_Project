@@ -111,11 +111,14 @@ class Tile:
 						else:
 							# mushroom
 							item_type = 4
+						game_framework.item_init_bgm.play(1)
 
 					# coin earned, score + 100
 					if item_type == 3:
 						main_state.game_score += 100
 						main_state.game_coin += 1
+
+						game_framework.coin_bgm.play(1)
 
 					new_item = Item.Item(self.x, self.y + TILE_SIZE, item_type - 1)
 					GameWorld.add_object(new_item, 1)
@@ -125,6 +128,7 @@ class Tile:
 					self.type = 56
 					self.offsetY = 0
 					# start fragment animation here
+					game_framework.breaking_bgm.play(1)
 					pass
 
 		pass

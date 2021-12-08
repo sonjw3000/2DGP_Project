@@ -40,27 +40,46 @@ class Monster:
 		# type == 1 : gummba
 		self.type = mon_type
 		self.frame = 0
+		self.bDead = False
+		self.how = False
+		self.lifetime = 0
 
 	def update(self):
 		# Move here
 		# x axis
-		self.x -= (1 - self.dir * 2) * MONSTER_SPEED_PPS * game_framework.frame_time
+		self.lifetime += game_framework.frame_time * self.bDead
+
+		self.x -= (1 - self.dir * 2) * MONSTER_SPEED_PPS * game_framework.frame_time * (not self.bDead)
 
 		# y axis
-		self.speed_y -= 12 * PIXEL_PER_METER * game_framework.frame_time
+		self.speed_y -= 12 * PIXEL_PER_METER * game_framework.frame_time * (self.bDead and (self.how))
 		if self.speed_y < -MONSTER_TERMINAL_VELOCITY_PPS:
 			self.speed_y = -MONSTER_TERMINAL_VELOCITY_PPS
 
 		self.y += self.speed_y * game_framework.frame_time
 
-		self.frame = (
-								   self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
+		if self.bDead:
+			self.frame = 2 + self.how
+		else:
+			self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) \
+						 % FRAMES_PER_ACTION
+
+
 
 	def get_position(self):
 		return (self.x - MONSTER_SIZE / 2,
 				self.y - MONSTER_SIZE / 2,
 				self.x + MONSTER_SIZE / 2,
 				self.y + MONSTER_SIZE / 2)
+
+	# foot = false, bullet = true
+	def go_dead(self, how):
+		self.bDead = True
+		self.how = how and self.type != 0
+		self.speed_y = 300 * how
+
+	def life_dead(self):
+		return self.lifetime >= 1.25
 
 	def draw(self):
 		# draw_rectangle(*(self.get_position()))
