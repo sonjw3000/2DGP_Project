@@ -9,6 +9,7 @@ import GameWorld
 import copy
 
 import world_build_state
+import dead_state
 
 import server
 
@@ -205,18 +206,21 @@ def enter():
 
 
 def restart():
-	global game_time
-	game_time = 300
+	# global game_time
+	# game_time = 300
 
-	GameWorld.clear()
-	if server.checkpoint.bCaptured:
-		GameWorld.load(-3)
-	else:
-		GameWorld.load(current_stage)
+	# server.items.clear()
+
+	# GameWorld.clear()
+	# if server.checkpoint.bCaptured:
+	# 	GameWorld.load(-3)
+	# else:
+	# 	GameWorld.load(current_stage)
+	game_framework.change_state(dead_state)
 
 
 def exit():
-	GameWorld.clear()
+	# GameWorld.clear()
 	pass
 
 

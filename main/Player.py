@@ -1,7 +1,7 @@
 from pico2d import *
 from keyboard import is_pressed
 # from Tile import TILE_SIZE
-import Tile
+# import Tile
 import Bullet
 import game_framework
 import GameWorld
@@ -32,6 +32,7 @@ FRAMES_PER_ACTION = 4
 
 PLAYER_MAX_JUMP_HEIGHT = 100  # pixel
 
+PLAYER_SIZE = 40
 
 class MovingState:
 	# normal state
@@ -64,6 +65,7 @@ class Player:
 		self.bAttack = False
 		self.bJump = False
 		self.bFalling = False
+		self.bDead = False
 
 		# invincible control variables
 		self.bInvincible = False
@@ -96,10 +98,10 @@ class Player:
 
 	# Returns rectangle tuple (Left, Bottom, Right, Top)
 	def get_position(self):
-		return (self.x - Tile.TILE_SIZE / 2,
-				self.y - Tile.TILE_SIZE,
-				self.x + Tile.TILE_SIZE / 2,
-				self.y + Tile.TILE_SIZE - ((self.bSitDown or self.size == 0) * Tile.TILE_SIZE))
+		return (self.x - PLAYER_SIZE / 2,
+				self.y - PLAYER_SIZE,
+				self.x + PLAYER_SIZE / 2,
+				self.y + PLAYER_SIZE - ((self.bSitDown or self.size == 0) * PLAYER_SIZE))
 
 	def hit_ceil(self):
 		if self.speed_y <= 0:
@@ -192,7 +194,7 @@ class Player:
 			if not self.bAttack:
 				self.bAttack = True
 				# Make bullet here
-				bullet = Bullet.Bullet(self.x + Tile.TILE_SIZE * (1 - 2 * (not self.bLookRight)), self.y,
+				bullet = Bullet.Bullet(self.x + PLAYER_SIZE * (1 - 2 * (not self.bLookRight)), self.y,
 									   self.bLookRight)
 				server.bullets.append(bullet)
 				GameWorld.add_object(bullet, 2)
@@ -220,7 +222,7 @@ class Player:
 
 	def land(self, y_pos):
 		self.speed_y = 0
-		self.y = y_pos + Tile.TILE_SIZE
+		self.y = y_pos + PLAYER_SIZE
 		self.bJump = False
 		self.bFalling = False
 
@@ -292,13 +294,15 @@ class Player:
 		# Image sprite priority
 		# attack > jump > sit > break > running > idle
 		self.imgSprite = 0
-		if self.bAttack:
+		if self.bDead:
+			self.imgSprite = 6
+		elif self.bAttack:
 			self.imgSprite = 6
 		elif self.bJump or self.bFalling:
 			self.imgSprite = 1
 		elif self.bSitDown:
 			self.imgSprite = 8
-		elif self.bBreak:
+		elif self.bBreak and self.size:
 			self.imgSprite = 7
 		elif self.bRunning:
 			self.imgSprite = 2
@@ -316,9 +320,33 @@ class Player:
 		Player.characterImageSprite.clip_draw(
 			(self.imgSprite + (bFrame * int(self.frame))) * 17 + 153 * self.bLookRight,
 			(2 - self.size) * 33,
-			16, 32, self.x - main_state.screen_offset, self.y,
-			Tile.TILE_SIZE,
-			Tile.TILE_SIZE + Tile.TILE_SIZE - ((self.bSitDown or self.size == 0) * Tile.TILE_SIZE) / 2)
+			16, 32, self.x - main_state.screen_offset, self.y - ((self.bSitDown or self.size == 0) * PLAYER_SIZE) / 4,
+			PLAYER_SIZE,
+			PLAYER_SIZE + PLAYER_SIZE - ((self.bSitDown or self.size == 0) * PLAYER_SIZE) / 2)
+
+	def dead(self):
+		self.speed_y = 300
+		self.size = 0
+		self.bDead = True
+
+	def draw_dead(self):
+		Player.characterImageSprite.clip_draw(
+			6 * 17 + 153 * self.bLookRight,
+			2 * 33,
+			16, 16, self.x - main_state.screen_offset, self.y,
+			PLAYER_SIZE,
+			PLAYER_SIZE)
+
+	# returns true when out of screen
+	def dead_update(self):
+		self.speed_y -= 12 * PIXEL_PER_METER * game_framework.frame_time
+		if self.speed_y < -PLAYER_TERMINAL_VELOCITY_PPS:
+			self.speed_y = -PLAYER_TERMINAL_VELOCITY_PPS
+
+		self.y += self.speed_y * game_framework.frame_time
+		print(self.y)
+
+		return self.y < -20
 
 	# draw_rectangle(*(self.get_position()))
 
