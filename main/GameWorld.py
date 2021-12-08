@@ -52,13 +52,16 @@ def load_objects_from_file(file_route):
 	pass
 
 
-def save():
+def save(bIsCheckPoint=False):
 	# with open('game.sav', 'wb') as f:
 	# 	pickle.dump(objects, f)
 
 	cur_path = os.getcwd()
 	# print(cur_path)
-	os.chdir(os.path.join(cur_path, 'stage/lastgame'))
+	if bIsCheckPoint:
+		os.chdir(os.path.join(cur_path, 'stage/checkpoint'))
+	else:
+		os.chdir(os.path.join(cur_path, 'stage/lastgame'))
 
 	# scene num
 	with open("scene_data.json", 'w') as f:
@@ -71,13 +74,17 @@ def save():
 		}
 		json.dump(data, f)
 
+	# check point
+	with open("checkpoint.sav", "wb") as f:
+		pickle.dump(server.checkpoint, f)
+
 	# tiles
 	with open("tiles.sav", "wb") as f:
 		pickle.dump(server.tiles, f)
 
 	# monsters
 	with open("monsters.sav", "wb") as f:
-		pickle.dump(objects[2], f)
+		pickle.dump(server.monsters, f)
 
 	# player
 	with open("player.sav", "wb") as f:
@@ -93,12 +100,14 @@ def load(stage_num):
 	clear()
 	# move to save directory
 	cur_path = os.getcwd()
-	# print(cur_path)
-	if stage_num == -1:			# this is test map
+
+	if stage_num == -1:  # this is test map
 		os.chdir(os.path.join(cur_path, 'stage/test'))
 		pass
-	elif stage_num == -2:		# load last saved game
+	elif stage_num <= -2:  		# load last saved game
 		os.chdir(os.path.join(cur_path, 'stage/lastgame'))
+		if stage_num == -3:		# checkpoint
+			os.chdir(os.path.join(cur_path, 'stage/checkpoint'))
 		with open("scene_data.json", 'r') as f:
 			stage_data = json.load(f)
 			main_state.player_life = stage_data["life"]
@@ -106,7 +115,17 @@ def load(stage_num):
 			main_state.game_coin = stage_data["coin"]
 			main_state.game_time = stage_data["time"]
 			main_state.current_stage = stage_data["stage"]
+			if stage_num == -3:
+				main_state.player_life -= 1
+	else:
+		string = 'stage/' + str(stage_num)
+		os.chdir(os.path.join(cur_path, string))
 
+	# check point
+	with open("checkpoint.sav", "rb") as f:
+		checkpointData = pickle.load(f)
+		add_object(checkpointData, 2)
+		server.checkpoint = checkpointData
 
 	# load tiles
 	with open("tiles.sav", "rb") as f:
@@ -115,11 +134,13 @@ def load(stage_num):
 			add_objects(tile, 0)
 		server.tiles = tiles
 
+	# monster
 	with open("monsters.sav", "rb") as f:
 		monster = pickle.load(f)
 		add_objects(monster, 2)
 		server.monsters = monster
 
+	# player
 	with open("player.sav", "rb") as f:
 		player = pickle.load(f)
 		add_object(player, 3)

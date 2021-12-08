@@ -3,6 +3,7 @@ import Player
 import Monster
 import Bullet
 import Tile
+import Flag
 import game_framework
 import GameWorld
 import copy
@@ -40,46 +41,52 @@ def set_images():
 	playerImg = load_image("./resource/Mario_Real.png")
 	Player.Player.set_image(playerImg)
 
-	global font
-	font = load_font('./resource/ENCR10B.TTF', 16)
-
-
-def test():
-	# Tiles
-
-	server.tiles = []
-	for lists in TestMap.TestMapTile:
-		server.tiles.append(lists)
-
-	for i in range(len(server.tiles) - 1, 0 - 1, -1):
-		GameWorld.add_objects(server.tiles[i][::-1], 0)
-
-	# Monsters
-	server.monsters = []
-	for lists in TestMap.Monster:
-		server.monsters.append(lists)
-
-	GameWorld.add_objects(server.monsters, 2)
-
-	# Player
-	server.gamePlayer = Player.Player(50, 80, 0)
-	GameWorld.add_object(server.gamePlayer, 3)
-
-	# item
-	server.items = []
-
-	# load img
-	tileImage = load_image('./resource/tiles/overworld.png')
-	Tile.Tile.set_image(tileImage)
-
-	bulletImg = load_image('./resource/bullets.png')
-	Bullet.Bullet.set_image(bulletImg)
-
-	monsterImg = load_image("./resource/monsters.png")
-	Monster.Monster.set_image(monsterImg)
+	flagImage = load_image('./resource/flag.png')
+	Flag.Flag.set_image(flagImage)
 
 	global font
 	font = load_font('./resource/ENCR10B.TTF', 16)
+
+
+# def test():
+# 	# Tiles
+#
+# 	server.tiles = []
+# 	for lists in TestMap.TestMapTile:
+# 		server.tiles.append(lists)
+#
+# 	for i in range(len(server.tiles) - 1, 0 - 1, -1):
+# 		GameWorld.add_objects(server.tiles[i][::-1], 0)
+#
+# 	# Monsters
+# 	server.monsters = []
+# 	for lists in TestMap.Monster:
+# 		server.monsters.append(lists)
+#
+# 	GameWorld.add_objects(server.monsters, 2)
+#
+# 	# Player
+# 	server.gamePlayer = Player.Player(50, 80, 0)
+# 	GameWorld.add_object(server.gamePlayer, 3)
+#
+# 	# item
+# 	server.items = []
+#
+# 	# load img
+# 	tileImage = load_image('./resource/tiles/overworld.png')
+# 	Tile.Tile.set_image(tileImage)
+#
+# 	bulletImg = load_image('./resource/bullets.png')
+# 	Bullet.Bullet.set_image(bulletImg)
+#
+# 	monsterImg = load_image("./resource/monsters.png")
+# 	Monster.Monster.set_image(monsterImg)
+#
+# 	flagImage = load_image('./resource/tiles/flag.png')
+# 	Flag.Flag.set_image(flagImage)
+#
+# 	global font
+# 	font = load_font('./resource/ENCR10B.TTF', 16)
 
 
 def check_collide(a, b):
@@ -198,8 +205,14 @@ def enter():
 
 
 def restart():
+	global game_time
+	game_time = 300
+
 	GameWorld.clear()
-	GameWorld.load(current_stage)
+	if server.checkpoint.bCaptured:
+		GameWorld.load(-3)
+	else:
+		GameWorld.load(current_stage)
 
 
 def exit():
@@ -379,6 +392,10 @@ def update():
 				item.land(y_collide * Tile.TILE_SIZE * -1)
 		else:
 			print("item out")
+
+	# server.checkpoint
+	if check_collide(server.checkpoint, server.gamePlayer):
+		server.checkpoint.get_hit()
 
 	if game_coin >= 100:
 		player_life += 1
