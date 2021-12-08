@@ -47,7 +47,7 @@ def create_new_world():
     GameWorld.add_object(server.gamePlayer, 1)
 
     # new stage0 tile
-    GameWorld.load(-1)
+    GameWorld.load(1)
     # new stage0 monster
     # for data in zombie_data_list:
     #     zombie = Zombie(data['name'], data['x'], data['y'], data['size'])

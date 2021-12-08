@@ -262,6 +262,8 @@ def handle_events():
 			elif event.key == SDLK_s:
 				print("Game Save!")
 				GameWorld.save()
+			elif event.key == SDLK_l:
+				player_life -= 1
 			# GameWorld.save()
 	# cheat keys
 	# elif event.key == SDLK_F1:
@@ -386,6 +388,7 @@ def update():
 			else:
 				monster.go_dead(False)
 				game_framework.monster_dead_bgm.play(1)
+				game_score += 100
 				server.gamePlayer.bounce()
 				continue
 
@@ -471,7 +474,7 @@ def update():
 
 	if player_life <= 0:
 		print("Game Over")
-		game_framework.change_state(world_build_state)
+		game_framework.change_state(dead_state)
 
 	# screen offset setting
 	screen_offset = clamp(0,

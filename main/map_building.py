@@ -2,8 +2,8 @@ import pickle
 # import os
 # import Player
 from Tile import *
+import Monster
 
-# import Monster
 # import Flag
 
 T = TILE_SIZE
@@ -31,22 +31,23 @@ def main():
 	# ]
 
 	TestMapTile = [
-		[Tile(TILE_SIZE * i, TILE_SIZE * 0, True, False, 0) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 1, False + (i == 19 or i == 14), False, 56 - 56 * (i == 19 or i == 14)) for i
-		 in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 2, False, False, 56) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 3, False, False, 56) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 4, False, False, 56) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 5, True, True, 33) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 6, False, False, 56) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 7, False, False, 56) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 8, False, False, 56) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 9, False, False, 56, (i // 10) * 4) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 10, False, False, 56) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 11, False, False, 56) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 12, False, False, 56) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 13, False, False, 56) for i in range(40)],
-		[Tile(TILE_SIZE * i, TILE_SIZE * 14, False, False, 56) for i in range(40)],
+		[Tile(T * i, T * 0, True, False, 0) for i in range(40)],
+		[Tile(T * i, T * 1, False + (i == 30 or i == 14), False,
+			  56 - 56 * (i == 19 or i == 14)) for i in range(40)],
+		[Tile(T * i, T * 2, False, False, 56) for i in range(40)],
+		[Tile(T * i, T * 3, False, False, 56) for i in range(40)],
+		[Tile(T * i, T * 4, False + (i <= 8), i <= 8,
+			 33 + 23 * (i > 8), (i <= 8) * 3 - 3 * (i < 2)) for i in range(40)],
+		[Tile(T * i, T * 5, False, False, 56) for i in range(40)],
+		[Tile(T * i, T * 6, False, False, 56) for i in range(40)],
+		[Tile(T * i, T * 7, False, False, 56) for i in range(40)],
+		[Tile(T * i, T * 8, False, (i <= 5), 56, 3 * (i <= 5)) for i in range(40)],
+		[Tile(T * i, T * 9, False, False, 56) for i in range(40)],
+		[Tile(T * i, T * 10, False, False, 56) for i in range(40)],
+		[Tile(T * i, T * 11, False, False, 56) for i in range(40)],
+		[Tile(T * i, T * 12, False, False, 56) for i in range(40)],
+		[Tile(T * i, T * 13, False, (i <= 5), 56, 3 * (i <= 5)) for i in range(40)],
+		[Tile(T * i, T * 14, False, False, 56) for i in range(40)],
 	]
 
 	for i in range(len(TestMapTile)):
@@ -63,6 +64,13 @@ def main():
 
 	with open("tiles.sav", "wb") as f:
 		pickle.dump(TestMapTile, f)
+
+	monsters = [
+		Monster.Monster(700, 50, 1, False),
+	]
+
+	with open("monsters.sav", "wb") as f:
+		pickle.dump(monsters, f)
 	pass
 
 

@@ -114,8 +114,9 @@ def load(stage_num):
 			if stage_num == -3:
 				main_state.player_life -= 1
 	else:
-		string = 'stage/' + str(stage_num)
+		string = '/stage/' + str(stage_num)
 		if os.path.exists(cur_path + string):
+			string = 'stage/' + str(stage_num)
 			os.chdir(os.path.join(cur_path, string))
 		else:
 			os.chdir(os.path.join(cur_path, 'stage/test'))
