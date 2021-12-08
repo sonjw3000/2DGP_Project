@@ -337,17 +337,26 @@ class Player:
 			PLAYER_SIZE,
 			PLAYER_SIZE)
 
-	# returns true when out of screen
+	# returns true when out of screen모듈
 	def dead_update(self):
 		self.speed_y -= 12 * PIXEL_PER_METER * game_framework.frame_time
 		if self.speed_y < -PLAYER_TERMINAL_VELOCITY_PPS:
 			self.speed_y = -PLAYER_TERMINAL_VELOCITY_PPS
 
 		self.y += self.speed_y * game_framework.frame_time
-		# print(self.y)
 
 		return self.y < -20
 
+	# returns true when on floor
+	def goal_update(self):
+		self.y -= PLAYER_SPEED_PPS * 0.8 * game_framework.frame_time
+		return self.y <= PLAYER_SIZE + ((self.bSitDown or self.size == 0) * PLAYER_SIZE)
+
+	def goal_update_2(self):
+		self.x += PLAYER_SPEED_PPS * 0.8 * game_framework.frame_time
+		self.bRunning = True
+		self.bJump = False
+		self.bFalling = False
 	# draw_rectangle(*(self.get_position()))
 
 	@classmethod
@@ -376,6 +385,7 @@ class Player:
 		return self.size
 
 	def set_size(self, size):
+		server.playerSize = size
 		self.size = size
 
 

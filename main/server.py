@@ -4,3 +4,5 @@ bullets = None
 tiles = None
 items = None
 checkpoint = None
+
+playerSize = 0

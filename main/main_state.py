@@ -10,11 +10,12 @@ import copy
 
 import world_build_state
 import dead_state
+import goal_state
 
 import server
 
 # for test
-import TestMap
+# import TestMap
 
 font = None
 
@@ -113,6 +114,8 @@ def check_tile_collide(left, bottom, right, top):
 	if bottom_index < 0:
 		# something dead
 		return None
+	if top_index >= len(server.tiles):
+		return None
 
 	# x collide check here
 	if left_index < 0:
@@ -150,6 +153,8 @@ def check_tile_collide_x(left, bottom, right, top):
 	if bottom_index < 0:
 		# Player dead or Bullet dead
 		return None
+	if top_index >= len(server.tiles):
+		return None
 
 	# x collide check here
 	if left_index < 0:
@@ -179,8 +184,15 @@ def check_tile_collide_y(left, bottom, right, top):
 	if bottom_index < 0:
 		# Player dead or Bullet dead
 		return None
+	if top_index >= len(server.tiles):
+		return None
 
 	# y collide check here
+	if left_index < 0:
+		left_index = 0
+	elif right_index >= len(server.tiles[0]):
+		right_index = len(server.tiles[0]) - 1
+
 	if server.tiles[bottom_index][left_index].get_is_collidable() or \
 			server.tiles[bottom_index][right_index].get_is_collidable():
 		yCol = -1
@@ -241,20 +253,20 @@ def handle_events():
 			elif event.key == SDLK_s:
 				print("Game Save!")
 				GameWorld.save()
-				# GameWorld.save()
-		# cheat keys
-			# elif event.key == SDLK_F1:
-			# 	server.gamePlayer.set_size(0)
-			# elif event.key == SDLK_F2:
-			# 	server.gamePlayer.set_size(1)
-			# elif event.key == SDLK_F3:
-			# 	server.gamePlayer.set_size(2)
-			# elif event.key == SDLK_p:
-			# 	game_coin += 10
-			# elif event.key == SDLK_m:
-			# 	player_life -= 1
-			# elif event.key == SDLK_t:
-			# 	game_time = 5
+			# GameWorld.save()
+	# cheat keys
+	# elif event.key == SDLK_F1:
+	# 	server.gamePlayer.set_size(0)
+	# elif event.key == SDLK_F2:
+	# 	server.gamePlayer.set_size(1)
+	# elif event.key == SDLK_F3:
+	# 	server.gamePlayer.set_size(2)
+	# elif event.key == SDLK_p:
+	# 	game_coin += 10
+	# elif event.key == SDLK_m:
+	# 	player_life -= 1
+	# elif event.key == SDLK_t:
+	# 	game_time = 5
 
 
 def update():
@@ -265,6 +277,25 @@ def update():
 		objs.update()
 
 	# player-tile collide
+
+	# check x col
+	state = check_tile_collide_x(*(server.gamePlayer.get_position()))
+	if state is not None:
+		x_collide = state
+		if x_collide:
+			l, b, r, t = server.gamePlayer.get_position()
+
+			left_index = int((l + 1) // Tile.TILE_SIZE)
+			right_index = int((r - 1) // Tile.TILE_SIZE)
+			top_index = int(t // Tile.TILE_SIZE)
+
+			if server.tiles[top_index][left_index].is_goal() or \
+					server.tiles[top_index][right_index].is_goal():
+				game_framework.change_state(goal_state)
+				return
+
+			server.gamePlayer.go_x_back()
+
 	# check y col
 	state = check_tile_collide_y(*(server.gamePlayer.get_position()))
 	if state is not None:
@@ -278,18 +309,17 @@ def update():
 					right_index = int((r - 1) // Tile.TILE_SIZE)
 					top_index = int(t // Tile.TILE_SIZE)
 
+					if server.tiles[top_index][left_index].is_goal() or \
+							server.tiles[top_index][right_index].is_goal():
+						game_framework.change_state(goal_state)
+						return
+
 					server.tiles[top_index][left_index].collide()
 					server.tiles[top_index][right_index].collide()
 			else:
 				server.gamePlayer.land(y_collide * Tile.TILE_SIZE * -1)
 	else:
 		print("player out")
-	# check x col
-	state = check_tile_collide_x(*(server.gamePlayer.get_position()))
-	if state is not None:
-		x_collide = state
-		if x_collide:
-			server.gamePlayer.go_x_back()
 
 	# bullets
 	for bullet in server.bullets:
@@ -415,9 +445,8 @@ def update():
 
 	# screen offset setting
 	screen_offset = clamp(0,
-				   server.gamePlayer.get_x() - game_framework.w / 2,
-				   len(server.tiles[0]) * Tile.TILE_SIZE - game_framework.w)
-
+						  server.gamePlayer.get_x() - game_framework.w / 2,
+						  len(server.tiles[0]) * Tile.TILE_SIZE - game_framework.w)
 
 
 def draw():

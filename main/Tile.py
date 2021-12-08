@@ -1,5 +1,5 @@
 from pico2d import *
-import Player
+# import Player
 import Item
 import game_framework
 import main_state
@@ -12,6 +12,7 @@ TILE_SIZE = 40
 # Normal Block : 33
 # Empty_Sky = 56
 # Item Block : 64
+# Goal 85, 101
 
 # 1 cycle : 1.6 sec
 # 1 cycle = 4 frame
@@ -59,7 +60,10 @@ class Tile:
 		return self.x - TILE_SIZE / 2, self.y - TILE_SIZE / 2, self.x + TILE_SIZE / 2, self.y + TILE_SIZE / 2
 
 	def get_is_collidable(self, is_from_bottom=False):
-		return self.bCollideOn or (is_from_bottom and self.item)
+		return self.bCollideOn or (is_from_bottom and self.item) or (self.type == 85 or self.type == 101)
+
+	def is_goal(self):
+		return self.type == 85 or self.type == 101
 
 	def is_breakable(self):
 		return self.__bBreakable

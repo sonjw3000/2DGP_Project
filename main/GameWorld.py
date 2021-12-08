@@ -48,10 +48,6 @@ def get_objects_from_layer(layer_index):
 	return objects[layer_index]
 
 
-def load_objects_from_file(file_route):
-	pass
-
-
 def save(bIsCheckPoint=False):
 	# with open('game.sav', 'wb') as f:
 	# 	pickle.dump(objects, f)
@@ -119,7 +115,10 @@ def load(stage_num):
 				main_state.player_life -= 1
 	else:
 		string = 'stage/' + str(stage_num)
-		os.chdir(os.path.join(cur_path, string))
+		if os.path.exists(cur_path + string):
+			os.chdir(os.path.join(cur_path, string))
+		else:
+			os.chdir(os.path.join(cur_path, 'stage/test'))
 
 	# check point
 	with open("checkpoint.sav", "rb") as f:
@@ -145,6 +144,7 @@ def load(stage_num):
 		player = pickle.load(f)
 		add_object(player, 3)
 		server.gamePlayer = player
+		server.gamePlayer.size = server.playerSize
 
 	os.chdir(cur_path)
 

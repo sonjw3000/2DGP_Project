@@ -12,14 +12,20 @@ import Monster
 
 name = "DeadState"
 
-menu = None
-
-
+bDown = False
+time = 0
 def enter():
-	server.gamePlayer.dead()
+	global bDown, time
+	bDown = False
+	time = 0
+	# server.gamePlayer.dead()
+	pass
 
 
 def exit():
+	global bDown, time
+	bDown = False
+	time = 0
 	pass
 
 
@@ -41,19 +47,23 @@ def handle_events():
 
 
 def update():
-	if server.gamePlayer.dead_update():
-		if main_state.player_life > 0:
-			if server.checkpoint.bCaptured:
-				GameWorld.load(-3)
-			else:
-				GameWorld.load(main_state.current_stage)
+	global bDown, time
+
+	if bDown:
+		time += game_framework.frame_time
+		server.gamePlayer.goal_update_2()
+
+		if time >= 1:
+			main_state.current_stage += 1
+			GameWorld.load(main_state.current_stage)
 
 			main_state.game_time = 300
 			game_framework.change_state(loading_state)
 			return
-		else:
-			game_framework.change_state(world_build_state)
-			return
+	elif server.gamePlayer.goal_update():
+		bDown = True
+
+
 
 def draw():
 	clear_canvas()
