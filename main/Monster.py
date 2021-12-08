@@ -36,6 +36,9 @@ class Monster:
 
 		self.speed_y = 0
 
+		self.speed_x = MONSTER_SPEED_PPS * 2
+		self.bRun = False
+
 		# type == 0 : turtle
 		# type == 1 : gummba
 		self.type = mon_type
@@ -51,8 +54,14 @@ class Monster:
 
 		self.x -= (1 - self.dir * 2) * MONSTER_SPEED_PPS * game_framework.frame_time * (not self.bDead)
 
+		if self.bRun:
+			self.x -= (1 - self.dir * 2) * MONSTER_SPEED_PPS * game_framework.frame_time
+
 		# y axis
-		self.speed_y -= 12 * PIXEL_PER_METER * game_framework.frame_time * (self.bDead and (self.how))
+		self.speed_y -= 12 * PIXEL_PER_METER * game_framework.frame_time
+		if (self.bDead and not self.how) and not self.bRun:
+			self.speed_y = 0
+
 		if self.speed_y < -MONSTER_TERMINAL_VELOCITY_PPS:
 			self.speed_y = -MONSTER_TERMINAL_VELOCITY_PPS
 
@@ -74,19 +83,36 @@ class Monster:
 
 	# foot = false, bullet = true
 	def go_dead(self, how):
+		if self.bDead:
+			self.bRun = not self.bRun
+			if self.bRun:
+				self.lifetime = 0
+				self.speed_x = MONSTER_SPEED_PPS * 2
+			return
 		self.bDead = True
+		self.bRun = False
 		self.how = how and self.type != 0
 		self.speed_y = 300 * how
 
+	def go_live(self):
+		self.bDead = False
+		self.how = False
+		self.bRun = False
+		self.lifetime = 0
+
 	def life_dead(self):
-		return self.lifetime >= 1.25
+
+		if self.bRun:
+			return False
+
+		return (self.lifetime >= 1.25 + 1.75 * (self.type == 0))
 
 	def draw(self):
 		# draw_rectangle(*(self.get_position()))
 
-		Monster.image.clip_draw(17 * int(self.frame), self.type * 23, 16, 16 + ((self.type == 0) * 7),
-								  self.x - main_state.screen_offset, self.y, MONSTER_SIZE,
-								  MONSTER_SIZE + ((self.type == 0) * MONSTER_SIZE / 2))
+		Monster.image.clip_draw(17 * int(self.frame) + 68 * (not self.dir), self.type * 23, 16, 16 + ((self.type == 0) * 7),
+								  self.x - main_state.screen_offset, self.y,
+								MONSTER_SIZE, MONSTER_SIZE)
 
 	def reverse(self):
 		self.dir = not self.dir
@@ -94,7 +120,7 @@ class Monster:
 
 	def land(self, y_pos):
 		self.speed_y = 0
-		self.y = y_pos + MONSTER_SIZE / 2 + ((self.type == 0) * MONSTER_SIZE / 2)
+		self.y = y_pos + MONSTER_SIZE / 2
 
 	@classmethod
 	def set_image(cls, monster_image):
@@ -108,5 +134,5 @@ class Monster:
 
 	# 정보를 저장하는 함수
 	def __setstate__(self, state):
-		self.__init__(0, 0, 0, 0)
+		self.__init__(0, 60, 0, 0)
 		self.__dict__.update(state)

@@ -21,7 +21,7 @@ font = None
 bgm = None
 
 current_stage = 0
-
+score_stack = 0
 # game var
 player_life = 5
 game_score = 0
@@ -281,7 +281,7 @@ def handle_events():
 
 
 def update():
-	global game_score, player_life, game_coin, game_time, screen_offset
+	global game_score, player_life, game_coin, game_time, screen_offset, score_stack
 
 	# move everything
 	for objs in GameWorld.all_objects():
@@ -329,6 +329,7 @@ def update():
 					server.tiles[top_index][right_index].collide()
 			else:
 				server.gamePlayer.land(y_collide * Tile.TILE_SIZE * -1)
+				score_stack = 0
 	else:
 		print("player out")
 
@@ -357,9 +358,14 @@ def update():
 	for monster in server.monsters:
 		if monster.bDead:
 			if monster.life_dead():
-				GameWorld.remove_object(monster)
-				server.monsters.remove(monster)
-			continue
+				if monster.type == 0:
+					monster.go_live()
+				else:
+					GameWorld.remove_object(monster)
+					server.monsters.remove(monster)
+					continue
+			if monster.type != 0:
+				continue
 
 		# player-monster collide
 		if check_collide(monster, server.gamePlayer) and not server.gamePlayer.is_invincible():
@@ -388,13 +394,21 @@ def update():
 			else:
 				monster.go_dead(False)
 				game_framework.monster_dead_bgm.play(1)
-				game_score += 100
+				score_stack += 1
+				if score_stack >= 10:
+					score_stack = 10
+					player_life += 1
+					game_framework.life_up_bgm.play(1)
+
+				game_score += 100 * score_stack
 				server.gamePlayer.bounce()
-				continue
+
+				if monster.type != 0:
+					continue
 
 		# monster-tile collide
 		state = check_tile_collide(*(monster.get_position()))
-		if state is not None and not monster.bDead:
+		if (state is not None) and ((monster.type == 0) or (not monster.bDead)):
 			x_collide, y_collide = state
 			if x_collide:
 				monster.reverse()
@@ -438,6 +452,7 @@ def update():
 				# green mushroom
 				game_score += 500
 				player_life += 1
+				game_framework.life_up_bgm.play(1)
 			else:
 				# star
 				pass
@@ -467,6 +482,8 @@ def update():
 	if game_coin >= 100:
 		player_life += 1
 		game_coin -= 100
+		game_framework.life_up_bgm.play(1)
+
 	game_time -= game_framework.frame_time
 	if game_time <= 0:
 		player_life -= 1

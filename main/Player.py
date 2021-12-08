@@ -336,6 +336,7 @@ class Player:
 
 	def bounce(self):
 		self.speed_y = 200
+		self.y += self.speed_y * game_framework.frame_time
 
 	def draw_dead(self):
 		Player.characterImageSprite.clip_draw(

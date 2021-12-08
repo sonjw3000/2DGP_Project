@@ -12,6 +12,7 @@ jump_bgm = None
 item_init_bgm = None
 power_up_bgm = None
 size_down_bgm = None
+life_up_bgm = None
 breaking_bgm = None
 monster_dead_bgm = None
 fire_ball_bgm = None
@@ -71,7 +72,7 @@ def quit():
 
 def run(start_state):
 	global coin_bgm, jump_bgm, item_init_bgm, power_up_bgm, monster_dead_bgm
-	global size_down_bgm, breaking_bgm, fire_ball_bgm
+	global size_down_bgm, breaking_bgm, fire_ball_bgm, life_up_bgm
 	coin_bgm = load_wav('sound/effect/coin.wav')
 	coin_bgm.set_volume(10)
 	jump_bgm = load_wav('sound/effect/jump.wav')
@@ -80,6 +81,9 @@ def run(start_state):
 	item_init_bgm.set_volume(40)
 	power_up_bgm = load_wav('sound/effect/power_up.wav')
 	power_up_bgm.set_volume(40)
+
+	life_up_bgm = load_wav('sound/effect/1_up.wav')
+	life_up_bgm.set_volume(40)
 
 	size_down_bgm = load_wav('sound/effect/size_down.wav')
 	size_down_bgm.set_volume(40)

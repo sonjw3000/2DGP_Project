@@ -67,6 +67,8 @@ def main():
 
 	monsters = [
 		Monster.Monster(700, 50, 1, False),
+		Monster.Monster(900, 50, 1, False),
+		Monster.Monster(700, 50, 0, True)
 	]
 
 	with open("monsters.sav", "wb") as f:
