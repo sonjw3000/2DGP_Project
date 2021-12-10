@@ -359,7 +359,7 @@ class Player:
 	# returns true when on floor
 	def goal_update(self):
 		self.y -= PLAYER_SPEED_PPS * 0.5 * game_framework.frame_time
-		return self.y <= PLAYER_SIZE + ((self.bSitDown or self.size == 0) * PLAYER_SIZE)
+		return self.y <= PLAYER_SIZE * 2
 
 	def goal_update_2(self):
 		self.x += PLAYER_SPEED_PPS * 0.3 * game_framework.frame_time
